@@ -4,7 +4,7 @@ Indicators will be used to trigger strategies
 Type        |Examples
 ---------------------------------------------------------
 Trend       |Moving Average, MACD, Parabolic SAR
-Momentum    |Stochastic, CCI, RSI
+Momentum    |Stochastic, CCI, RSI, EMA
 Volatility  |Bollinger Band, Average True Range, Std
 Volume      |Chaikin Oscillator, OBV, Rate of Change(ROV)
 ---------------------------------------------------------
@@ -20,6 +20,7 @@ class momentum:
 
     def EMA(self,price,length):
         pass
+
     def movingAverage(self,price,length):
         """
         :param price: price list
@@ -36,6 +37,7 @@ class momentum:
 class volatility:
     def __init__(self):
         pass
+
     def bollingerBand(self,price, length=30, numsd=2):
         """
         :param price: the price list
@@ -48,4 +50,3 @@ class volatility:
         upband = ave + (sd*numsd)
         dnband = ave - (sd*numsd)
         return np.round(ave,3), np.round(upband,3), np.round(dnband,3)
-
