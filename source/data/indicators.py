@@ -13,6 +13,13 @@ Volume      |Chaikin Oscillator, OBV, Rate of Change(ROV)
 import pandas as pd
 import numpy as np
 
+""" trend indicatiors """
+class trend:
+    def __init__(self):
+        pass
+
+
+
 """ momentum indicators """
 class momentum:
     def __init__(self):
@@ -28,7 +35,7 @@ class momentum:
         :return:moving average
         """
         ave = pd.stats.moments.rolling_mean(price,length)
-        return np.round(ave,3)
+        return ave
 
     def MACD(self):
         pass
@@ -38,15 +45,15 @@ class volatility:
     def __init__(self):
         pass
 
-    def bollingerBand(self,price, length=30, numsd=2):
+    def bollingerBand(self,price, length, numsd=2):
         """
         :param price: the price list
         :param length: the days for calculating moving average
         :param numsd: define the upper and lower band
         :return: moving average, upband, lowband
         """
-        ave = pd.stats.moments.rolling_mean(price,length)
-        sd = pd.stats.moments.rolling_std(price,length)
+        ave = price.rolling(window=length,center=False).mean()
+        sd = price.rolling(window=length,center=False).std()
         upband = ave + (sd*numsd)
         dnband = ave - (sd*numsd)
-        return np.round(ave,3), np.round(upband,3), np.round(dnband,3)
+        return ave , upband,dnband

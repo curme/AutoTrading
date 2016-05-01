@@ -17,13 +17,14 @@ class Data:
         :return: data table
         """
         df = pd.DataFrame()
-        xl = pd.ExcelFile("hsi_futures.xlsx")
+        xl = pd.ExcelFile("../data/hsi_futures.xlsx")
         print xl.sheet_names
         sheets = xl.sheet_names
         for sheet in sheets:
-            df = df.append(pd.read_excel("hsi_futures.xlsx", sheet))
+            df = df.append(pd.read_excel("../data/hsi_futures.xlsx", sheet))
 
         df['Date'] = pd.to_datetime(df['Date'])
+        df = df.set_index(range(0,len(df.axes[0])))
         return df
 
     def getExcelInterval(self, start, end):

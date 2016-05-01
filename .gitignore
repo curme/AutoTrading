@@ -60,3 +60,11 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+.idea/workspace.xml
+
+.idea/misc.xml
+
+.idea/AutoTrading.iml
+
+.idea/workspace.xml
