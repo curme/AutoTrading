@@ -29,7 +29,7 @@ class volatility:
     def __init__(self):
         pass
 
-    def bollingerBand(self,price, length=30, numsd=2):
+    def bollingerBand(self, price, length=30, numsd=2):
         """ returns average, upper band, and lower band"""
         ave = pd.stats.moments.rolling_mean(price,length)
         sd = pd.stats.moments.rolling_std(price,length)
