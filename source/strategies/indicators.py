@@ -36,8 +36,6 @@ class momentum:
 class volatility:
     def __init__(self):
         pass
-
-<<<<<<< HEAD
     def bollingerBand(self,price, length=30, numsd=2):
         """
         :param price: the price list
@@ -45,11 +43,6 @@ class volatility:
         :param numsd: define the upper and lower band
         :return: moving average, upband, lowband
         """
-        """returns average, upper band, and lower band"""
-=======
-    def bollingerBand(self, price, length=30, numsd=2):
-        """ returns average, upper band, and lower band"""
->>>>>>> origin/master
         ave = pd.stats.moments.rolling_mean(price,length)
         sd = pd.stats.moments.rolling_std(price,length)
         upband = ave + (sd*numsd)
