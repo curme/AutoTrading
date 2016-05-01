@@ -18,8 +18,16 @@ class momentum:
     def __init__(self):
         pass
 
-    def movingAverage(self):
+    def EMA(self,price,length):
         pass
+    def movingAverage(self,price,length):
+        """
+        :param price: price list
+        :param length:the days for calculating moving average
+        :return:moving average
+        """
+        ave = pd.stats.moments.rolling_mean(price,length)
+        return np.round(ave,3)
 
     def MACD(self):
         pass
@@ -30,7 +38,13 @@ class volatility:
         pass
 
     def bollingerBand(self,price, length=30, numsd=2):
-        """ returns average, upper band, and lower band"""
+        """
+        :param price: the price list
+        :param length: the days for calculating moving average
+        :param numsd: define the upper and lower band
+        :return: moving average, upband, lowband
+        """
+        """returns average, upper band, and lower band"""
         ave = pd.stats.moments.rolling_mean(price,length)
         sd = pd.stats.moments.rolling_std(price,length)
         upband = ave + (sd*numsd)
