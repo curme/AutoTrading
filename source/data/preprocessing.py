@@ -28,10 +28,10 @@ class Data:
 
     def getExcelInterval(self, start, end):
         """
-        :param data:
-        :param start:
-        :param end:
-        :return:
+        Includes both start and end
+        :param start    : start date (e.g start = '2016-01-26 14:45:00')
+        :param end      : end date (e.g end = '2016-02-26 14:45:00')
+        :return         : data between start and end
         """
         interval = (self.df['Date'] >= start) & (self.df['Date'] <= end)
         return self.df.loc[interval]
@@ -39,10 +39,6 @@ class Data:
     def getAPIData(self):
         pass
 
-#xieyan
-=======
-
->>>>>>> origin/master
 # d = Data()
 # inte = d.getExcelInterval('2016-01-26 14:45:00', '2016-02-26 16:00:00')
 # print inte
