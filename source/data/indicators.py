@@ -13,6 +13,13 @@ Volume      |Chaikin Oscillator, OBV, Rate of Change(ROV)
 import pandas as pd
 import numpy as np
 
+""" trend indicatiors """
+class trend:
+    def __init__(self):
+        pass
+
+
+
 """ momentum indicators """
 class momentum:
     def __init__(self):
