@@ -40,6 +40,9 @@ class Data:
         pass
 
 #xieyan
+=======
+
+>>>>>>> origin/master
 # d = Data()
 # inte = d.getExcelInterval('2016-01-26 14:45:00', '2016-02-26 16:00:00')
 # print inte
