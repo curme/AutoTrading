@@ -18,14 +18,15 @@ class Data:
         """
         df = pd.DataFrame()
         xl = pd.ExcelFile("../data/hsi_futures.xlsx")
-        print xl.sheet_names
+        #print xl.sheet_names
         sheets = xl.sheet_names
         for sheet in sheets:
             df = df.append(pd.read_excel("../data/hsi_futures.xlsx", sheet))
 
         df['Date'] = pd.to_datetime(df['Date'])
-        df = df.set_index(range(0,len(df.axes[0])))
-        return df
+
+        data = df.set_index([range(df.shape[0])])
+        return data
 
     def getExcelInterval(self, start, end):
         """
@@ -35,7 +36,9 @@ class Data:
         :return         : data between start and end
         """
         interval = (self.df['Date'] >= start) & (self.df['Date'] <= end)
-        return self.df.loc[interval]
+        _df = self.df.loc[interval]
+        data = _df.set_index([range(_df.shape[0])])
+        return data
 
     def getAPIData(self):
         pass
