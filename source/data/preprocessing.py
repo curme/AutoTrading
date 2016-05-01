@@ -18,24 +18,15 @@ class Data:
         """
         df = pd.DataFrame()
         xl = pd.ExcelFile("../data/hsi_futures.xlsx")
-<<<<<<< HEAD
         #print xl.sheet_names
-=======
-        print xl.sheet_names
->>>>>>> master
         sheets = xl.sheet_names
         for sheet in sheets:
             df = df.append(pd.read_excel("../data/hsi_futures.xlsx", sheet))
 
         df['Date'] = pd.to_datetime(df['Date'])
-<<<<<<< HEAD
 
         data = df.set_index([range(df.shape[0])])
         return data
-=======
-        df = df.set_index(range(0,len(df.axes[0])))
-        return df
->>>>>>> master
 
     def getExcelInterval(self, start, end):
         """
