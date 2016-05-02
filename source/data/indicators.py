@@ -6,7 +6,7 @@ Type        |Examples
 Trend       |Moving Average, MACD, Parabolic SAR
 Momentum    |Stochastic, CCI, RSI, EMA
 Volatility  |Bollinger Band, Average True Range, Std
-Volume      |Chaikin Oscillator, OBV, Rate of Change(ROV)
+Volume      |Chaikin Oscillator, OBV, Rate of Change(ROV), ATR
 ---------------------------------------------------------
 """
 
@@ -17,6 +17,9 @@ import numpy as np
 class trend:
     def __init__(self):
         pass
+
+    def MACD(self, ):
+        macd, macdsignal, macdhist = MACD(close, fastperiod=12, slowperiod=26, signalperiod=9)
 
 
 
@@ -40,6 +43,12 @@ class momentum:
     def MACD(self):
         pass
 
+    from talib import STOCH
+    def Stochastic(self, high, low, close, para1, para2, para3):
+        slowk, slowd = STOCH(high, low, close, fastk_period=para1, slowk_period=para2, slowk_matype=0, slowd_period=para3, slowd_matype=0)
+        return [slowk, slowd]
+
+
 """ volatility indicators """
 class volatility:
     def __init__(self):
@@ -57,3 +66,7 @@ class volatility:
         upband = ave + (sd*numsd)
         dnband = ave - (sd*numsd)
         return ave , upband,dnband
+
+    from talib import ATR
+    def ATR(self, high, low, close, candleNum):
+        return ATR(high, low, close, timeperiod=candleNum)
