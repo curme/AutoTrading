@@ -24,6 +24,7 @@ class Data:
             df = df.append(pd.read_excel("../data/hsi_futures.xlsx", sheet))
 
         df['Date'] = pd.to_datetime(df['Date'])
+        df.sort_values("Date", ascending= True, inplace=True)
 
         data = df.set_index([range(df.shape[0])])
         return data
