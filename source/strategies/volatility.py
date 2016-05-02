@@ -25,11 +25,14 @@ def BollingerTest(df, timeperiod=30, nbdevup=2, nbdevdn=2, matype=0):
     signals = []
     for i in xrange(timeperiod, len(middleBand) - 1):
         if (crossOver(i , df, upperBand)):
-            signal = Short('HSI', df, i)
-            signals.append(signal)
+            signalShort = Short('HSI', df, i)
+            for sig in signalShort:
+                signals.append(sig)
+
         if (crossDown(i, df, lowerBand)):
-            signal = Long('HSI', df, i)
-            signals.append(signal)
+            signalLong = Long('HSI', df, i)
+            for sig in signalLong:
+                signals.append(sig)
 
     signals = tradeBook.simpleBook(signals)
     pd.set_option("display.max_rows", 280)
@@ -43,3 +46,4 @@ if __name__ == "__main__":
     dt = Data()
     df = dt.getExcelInterval(pd.Timestamp("2016-02-10 16:00:00"), pd.Timestamp("2016-02-26 16:00:00"))
     BollingerTest(df)
+    print Account.position
