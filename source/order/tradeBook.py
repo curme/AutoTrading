@@ -6,5 +6,5 @@ class tradeBook:
 
     @staticmethod
     def simpleBook(signals):
-        sig = pd.DataFrame(signals, columns=['Code', 'Time', 'Action', 'Price'])
+        sig = pd.DataFrame(signals, columns=['Code', 'Time', 'Action', 'Qnt', 'Price', 'Account'])
         return sig

@@ -4,10 +4,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from talib import MA_Type
 
-from source.data.indicators import volatility
 from source.data.preprocessing import Data
 from source.order.action import *
 from source.order.tradeBook import tradeBook
+from source.money.account import Account
 
 def BollingerTest(df, timeperiod=30, nbdevup=2, nbdevdn=2, matype=0):
     """
@@ -23,12 +23,12 @@ def BollingerTest(df, timeperiod=30, nbdevup=2, nbdevdn=2, matype=0):
     # BBANDS
     upperBand, middleBand, lowerBand = tl.BBANDS(np.array(float_array), timeperiod, nbdevup, nbdevdn, matype)
     signals = []
-    for i in xrange(timeperiod , len(middleBand) - 1):
+    for i in xrange(timeperiod, len(middleBand) - 1):
         if (crossOver(i , df, upperBand)):
-            signal = Sell('HSI', df, i)
+            signal = Short('HSI', df, i)
             signals.append(signal)
         if (crossDown(i, df, lowerBand)):
-            signal = Buy('HSI', df, i)
+            signal = Long('HSI', df, i)
             signals.append(signal)
 
     signals = tradeBook.simpleBook(signals)
@@ -38,9 +38,8 @@ def BollingerTest(df, timeperiod=30, nbdevup=2, nbdevdn=2, matype=0):
     plt.show()
 
 
-
 if __name__ == "__main__":
+    ac = Account()
     dt = Data()
-    vl = volatility()
-    df = dt.getExcelInterval(pd.Timestamp("2016-02-20 16:00:00"),pd.Timestamp("2016-02-26 16:00:00"))
+    df = dt.getExcelInterval(pd.Timestamp("2016-02-10 16:00:00"), pd.Timestamp("2016-02-26 16:00:00"))
     BollingerTest(df)
