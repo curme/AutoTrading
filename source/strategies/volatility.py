@@ -33,9 +33,11 @@ if __name__ == "__main__":
     for i in range(29,len(ave)-1):
         if df.loc[i,'Close'] > upband1[i]:
             signal = ["HSI",df.loc[i,'Date'],df.loc[i,'Close'],"Sell"]
+            signals.append(signal)
         if df.loc[i,'Close'] < dnband1[i]:
             signal = ["HSI",df.loc[i,'Date'],df.loc[i,'Close'],"Buy"]
-        signals.append(signal)
+            signals.append(signal)
     signals = pd.DataFrame(signals)
     print signals
+
 
