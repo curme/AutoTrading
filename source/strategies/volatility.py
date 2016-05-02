@@ -5,39 +5,39 @@ from talib import MA_Type
 
 from source.data.indicators import volatility
 from source.data.preprocessing import Data
+from source.order.action import *
+from source.order.tradeBook import tradeBook
 
-#dataPre
-
-if __name__ == "__main__":
-
-    dt = Data()
-    vl = volatility()
-    df = dt.getExcelInterval(pd.Timestamp("2015-10-26 16:00:00"),pd.Timestamp("2016-03-26 16:00:00"))
-
-    ave,upband,dnband = vl.bollingerBand(df['Close'],30)
-
-    #print type(df['Close'].values)
-    #print list( df['Close'].values)
-    dt_array = list( df['Close'].values)
-    float_array = [float(x) for x in dt_array]
-    upband1,ave1, dnband1 = tl.BBANDS(np.array(float_array), timeperiod=30,  nbdevup=2, nbdevdn=2, matype=0)
-    # print upband[50],ave[100], dnband[150]
-    # print "---------------------------"
-    # print upband1[50],ave1[100], dnband1[150]
-
+def BollingerTest(df, timeperiod=30, nbdevup=2, nbdevdn=2, matype=0):
+    """
+    :param df           : input data
+    :param timeperiod   : time period of BBANDS
+    :param nbdevup      : upper stdev
+    :param nbdevdn      : lower stdev
+    :param matype       : matheod type (see ..data/indicators/BBANDS)
+    :return             : a signal book
+    """
+    # Preprocess data
+    float_array = Data.toFloatArray(df['Close'])
+    # BBANDS
+    upperBand, middleBand, lowerBand = tl.BBANDS(np.array(float_array), timeperiod, nbdevup, nbdevdn, matype)
     signals = []
-    # print df.loc[3452,]
-    # print len(ave)
-    # print len(upband)
-    # print len(dnband)
-    for i in range(29,len(ave)-1):
-        if df.loc[i,'Close'] > upband1[i]:
-            signal = ["HSI",df.loc[i,'Date'],df.loc[i,'Close'],"Sell"]
+    for i in xrange(timeperiod - 1, len(middleBand) - 1):
+        # Cross Over, Sell
+        if df.loc[i, 'Close'] > upperBand[i]:
+            signal = Sell('HSI', df, i)
             signals.append(signal)
-        if df.loc[i,'Close'] < dnband1[i]:
-            signal = ["HSI",df.loc[i,'Date'],df.loc[i,'Close'],"Buy"]
+        # Cross Under, Buy
+        if df.loc[i, 'Close'] < lowerBand[i]:
+            signal = Buy('HSI', df, i)
             signals.append(signal)
-    signals = pd.DataFrame(signals)
+
+    signals = tradeBook.simpleBook(signals)
     print signals
 
 
+if __name__ == "__main__":
+    dt = Data()
+    vl = volatility()
+    df = dt.getExcelInterval(pd.Timestamp("2015-10-26 16:00:00"),pd.Timestamp("2016-03-26 16:00:00"))
+    BollingerTest(df)
