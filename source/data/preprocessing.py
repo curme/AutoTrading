@@ -43,6 +43,14 @@ class Data:
     def getAPIData(self):
         pass
 
+    @staticmethod
+    def toFloatArray(df):
+        dt_array = list(df.values)
+        float_array = map(float, dt_array)
+        return float_array
+
+
+
 # d = Data()
 # inte = d.getExcelInterval('2016-01-26 14:45:00', '2016-02-26 16:00:00')
 # print inte
