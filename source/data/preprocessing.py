@@ -11,7 +11,7 @@ class Data:
         self.df = self.getCSVData()
         pass
     def getCSVData(self):
-        df = pd.read_csv("../data/hsi_futures_feb.csv")
+        df = pd.read_csv("../data/hsi_futures_jan.csv")
         df['Date'] = pd.to_datetime(df['Date'])
         df.sort_values("Date", ascending= True, inplace=True)
         data = df.set_index([range(df.shape[0])])
