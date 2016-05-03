@@ -55,6 +55,7 @@ def oscillator1(df):
 
 
     sig = pd.DataFrame(signals, columns=['Code', 'Time', 'Action',  'Price'])
+    print sig
     profits = []
     for k in range(0,len(signals)/2):
         if sig['Action'][k*2] == "Long":
