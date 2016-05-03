@@ -34,11 +34,11 @@ def oscillator1(df):
     ddf.to_csv("ddf2.csv")
     for i in xrange(40 , len(adx_values) - 2):
         if flag ==0:
-            if adx_values[i]>20  and aco_values[i]>0 :
+            if adx_values[i]>20  and aco_values[i]>0 and df.loc[i+1, 'Open']> (df.loc[i, 'Close']+18):
                 signal = ['HSI', df.loc[i+1, 'Date'], 'Long',  df.loc[i+1, 'Open']]
                 flag =1
                 signals.append(signal)
-            if adx_values[i]>20  and aco_values[i]<0:
+            if adx_values[i]>20  and aco_values[i]<0 and df.loc[i+1, 'Open']< (df.loc[i, 'Close']-18):
                 signal = ['HSI', df.loc[i+1, 'Date'], 'Short',  df.loc[i+1, 'Open']]
                 flag =2
                 signals.append(signal)
@@ -95,20 +95,20 @@ def oscillator2(data):
                 signal = ['HSI', df.loc[i+1, 'Date'], 'Long',  df.loc[i+1, 'Close']]
                 flag =1
                 signals.append(signal)
-            """if adx_values[i]>20  and dmi[i]<mdmi[i] and df.loc[i+1, 'Open']< (df.loc[i, 'Close']-1.8) and rsi[i]<50:
+            if adx_values[i]>20  and dmi[i]<mdmi[i] and df.loc[i+1, 'Open']< (df.loc[i, 'Close']-1.8) and rsi[i]<50:
                 signal = ['HSI', df.loc[i+1, 'Date'], 'Short',  df.loc[i+1, 'Close']]
                 flag =2
-                signals.append(signal)"""
+                signals.append(signal)
         elif flag ==1:
             if df.loc[i, 'Close']>= signal[3]*1.01 or df.loc[i, 'Close']<= signal[3]*0.90 or (df.loc[i, 'Date']-signal[1])>timedelta(days=5):
                 signal = ['HSI', df.loc[i, 'Date'], 'Short',  df.loc[i+1, 'Open']]
                 flag = 0
                 signals.append(signal)
-        """elif flag ==2:
-            if df.loc[i, 'Close']<= signal[3]*0.99 or df.loc[i, 'Close']>= signal[3]*1.1 or (df.loc[i, 'Date']-signal[1])>timedelta(days=5):
+        elif flag ==2:
+            if df.loc[i, 'Close']<= signal[3]*0.99 or df.loc[i, 'Close']>= signal[3]*1.10 or (df.loc[i, 'Date']-signal[1])>timedelta(days=5):
                 signal = ['HSI', df.loc[i+1, 'Date'], 'Long',  df.loc[i+1, 'Close']]
                 flag = 0
-                signals.append(signal)"""
+                signals.append(signal)
 
     sig = pd.DataFrame(signals, columns=['Code', 'Time', 'Action',  'Price'])
     print sig['Time'][10]-sig['Time'][0]
@@ -154,4 +154,4 @@ if __name__ == "__main__":
     dt = Data()
     df = dt.getCSVData()
     #ACOscillator(df)
-    oscillator2(df)
+    oscillator1(df)
