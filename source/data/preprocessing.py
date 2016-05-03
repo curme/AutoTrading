@@ -12,7 +12,7 @@ class Data:
         pass
     def getCSVData(self):
         df = pd.read_csv("../data/hsi_futures_feb.csv")
-        df['Date'] = pd.to_datetime(df['Date'])
+        df['Date'] = pd.to_datetime(df['Date'],format='%d/%m/%Y %H:%M')
         df.sort_values("Date", ascending= True, inplace=True)
         data = df.set_index([range(df.shape[0])])
         return data
