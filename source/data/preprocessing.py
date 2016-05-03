@@ -7,8 +7,15 @@ import xlrd
 class Data:
 
     def __init__(self):
-        self.df = self.getExcelData()
+        #self.df = self.getExcelData()
+        self.df = self.getCSVData()
         pass
+    def getCSVData(self):
+        df = pd.read_csv("../data/hsi_futures_feb.csv")
+        df['Date'] = pd.to_datetime(df['Date'])
+        df.sort_values("Date", ascending= True, inplace=True)
+        data = df.set_index([range(df.shape[0])])
+        return data
 
     def getExcelData(self):
         """
@@ -36,6 +43,7 @@ class Data:
         :param end      : end date (e.g end = '2016-02-26 14:45:00')
         :return         : data between start and end
         """
+
         interval = (self.df['Date'] >= start) & (self.df['Date'] <= end)
         _df = self.df.loc[interval]
         data = _df.set_index([range(_df.shape[0])])
