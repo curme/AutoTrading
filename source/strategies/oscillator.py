@@ -1,13 +1,14 @@
+import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import talib as tl
-import numpy as np
-from talib import MA_Type
-import matplotlib.pyplot as plt
 from datetime import timedelta
-from source.data.preprocessing import Data
-from source.order.action import *
 from source.order.tradeBook import tradeBook
-import matplotlib.patches as mpatches
+from talib import MA_Type
+
+from source.data.preprocessing import Data
+from source.strategies.util import *
 
 
 def oscillator1(df):
