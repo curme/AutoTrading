@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 from source.strategies.MACD import *
 from source.strategies.ACOscillator import *
 from source.strategies.DM_RSI_ADX import *
-from source.strategies.oscillator3_13 import *
 from source.money.account import *
 
 class StrategiesManager:
@@ -23,11 +22,10 @@ class StrategiesManager:
         macd = MACD()
         dm_rsi_adx = DM_RSI_ADX()
         acoscillator = ACOscillator()
-        osc3_13 = oscillator3_13()
+
         pool[macd.name] = macd
         pool[dm_rsi_adx.name] = dm_rsi_adx
         pool[acoscillator.name] = acoscillator
-        pool[osc3_13.name] = osc3_13
 
         return pool
 
