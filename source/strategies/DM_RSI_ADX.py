@@ -96,6 +96,7 @@ class DM_RSI_ADX(Strategy):
         plt.grid()
 
         plt.savefig("image/DM_RSI_ADX.png")
+        plt.close()
         return sig
 
         # # test DM_RSI
