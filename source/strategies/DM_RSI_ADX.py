@@ -95,7 +95,7 @@ class DM_RSI_ADX(Strategy):
         plt.legend(handles=[red_patch, green_patch])
         plt.grid()
 
-        plt.savefig("image/DM_RSI_ADX.png")
+        plt.savefig("strategies/image/DM_RSI_ADX.png")
         plt.close()
         return sig
 

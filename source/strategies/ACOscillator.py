@@ -97,7 +97,7 @@ class ACOscillator(Strategy):
         green_patch = mpatches.Patch(color='green', label='Short')
         plt.legend(handles=[red_patch, green_patch])
         plt.grid()
-        plt.savefig("image/ACOscillator.png")
+        plt.savefig("strategies/image/ACOscillator.png")
         plt.close()
         return sig
 

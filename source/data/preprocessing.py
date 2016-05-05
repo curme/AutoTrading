@@ -11,7 +11,7 @@ class Data:
         self.df = self.getCSVData()
         pass
     def getCSVData(self):
-        df = pd.read_csv("../data/hsi_futures_feb.csv")
+        df = pd.read_csv("data/hsi_futures_feb.csv")
         df['Date'] = pd.to_datetime(df['Date'],format='%d/%m/%Y %H:%M')
         df.sort_values("Date", ascending= True, inplace=True)
         data = df.set_index([range(df.shape[0])])
@@ -36,7 +36,7 @@ class Data:
         data = df.set_index([range(df.shape[0])])
         return data
 
-    def getExcelInterval(self, start, end):
+    def getInterval(self, start, end):
         """
         Includes both start and end
         :param start    : start date (e.g start = '2016-01-26 14:45:00')

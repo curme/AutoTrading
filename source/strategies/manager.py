@@ -37,6 +37,7 @@ class StrategiesManager:
         print "\t" * 5, "Signal Table for All Strategies"
         print "*" * 70
         print self.signals
+        return self.signals
 
 if __name__ == "__main__":
     np.set_printoptions(threshold=np.nan)
