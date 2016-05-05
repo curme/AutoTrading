@@ -120,7 +120,8 @@ class PositionManager :
             # calculate PnL
             # when after position update, the function will return a PnL
             pnl = ""
-            if action == "SellToCover" or action == "BuyToCover": pnl = qnt * (price - float(self.positions.loc[index, "AvePrice"]))
+            if action == "SellToCover" : pnl = qnt * (price - float(self.positions.loc[index, "AvePrice"]))
+            if action == "BuyToCover"  : pnl = qnt * (float(self.positions.loc[index, "AvePrice"] - price))
 
             # update Base and AvePrice
             # init AvePrice if needed

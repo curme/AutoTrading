@@ -28,7 +28,7 @@ class AutoTradeManager:
         dataSet = self.data.getInterval(start, end) # entry security code
         signals = self.strategies.monitorMarket(dataSet)
 
-        # trade under signals
+        # # trade under signals
         # self.orderAgent.handleSignals(self.account, signals)
         for index, row in signals.iterrows():
             self.account.execAccount(row['Code'], row['Time'], row['Action'], row['Qnt'], row['Price'], row['Strategy'])
@@ -40,4 +40,4 @@ class AutoTradeManager:
 if __name__ == "__main__":
 
     atm = AutoTradeManager()
-    atm.run(pd.Timestamp("2016-02-10 16:00:00"), pd.Timestamp("2016-02-26 16:00:00"), "HSI")
+    atm.run(pd.Timestamp("2015-12-31 16:00:00"), pd.Timestamp("2016-02-26 16:00:00"), "HSI")

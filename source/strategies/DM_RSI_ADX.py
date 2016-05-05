@@ -15,7 +15,7 @@ class DM_RSI_ADX(Strategy):
     def __init__(self):
         self.name = "DM_RSI_ADX"
 
-    def analysis(self, df, quantity=50):
+    def analysis(self, df, quantity=1):
         """
 
         :param df:
@@ -80,12 +80,20 @@ class DM_RSI_ADX(Strategy):
         print "=" * 100
 
         """ Plot """
+        fig1 = plt.figure(1)
+        fig1.set_figheight(8)
+        fig1.set_figwidth(15)
+
+        rect = fig1.patch
+        rect.set_facecolor('red')
+        ax = fig1.add_subplot(1, 1, 1)
+
         longSignals = sig[sig['Action'] == 'Long']
         sellToCoverSignals = sig[sig['Action'] == 'SellToCover']
         shortSignals = sig[sig['Action'] == 'Short']
         buyToCoverSignals = sig[sig['Action'] == 'BuyToCover']
 
-        plt.plot(df['Date'], df['Close'], longSignals['Time'], longSignals['Price'], 'r^',
+        ax.plot(df['Date'], df['Close'], longSignals['Time'], longSignals['Price'], 'r^',
                  buyToCoverSignals['Time'], buyToCoverSignals['Price'], 'r^',
                  shortSignals['Time'], shortSignals['Price'], 'gv',
                  sellToCoverSignals['Time'], sellToCoverSignals['Price'], 'gv',
