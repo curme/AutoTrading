@@ -89,7 +89,7 @@ class DM_RSI_ADX(Strategy):
                  buyToCoverSignals['Time'], buyToCoverSignals['Price'], 'r^',
                  shortSignals['Time'], shortSignals['Price'], 'gv',
                  sellToCoverSignals['Time'], sellToCoverSignals['Price'], 'gv',
-                 markersize=6)
+                 markersize=10)
         red_patch = mpatches.Patch(color='red', label='Long')
         green_patch = mpatches.Patch(color='green', label='Short')
         plt.legend(handles=[red_patch, green_patch])

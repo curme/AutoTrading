@@ -49,12 +49,12 @@ class MACD(Strategy):
                         flag =2
                         signals.append(signal)
             elif flag ==1:
-                if df.loc[i, 'Close']>= signal[4]*1.01 or df.loc[i, 'Close']<= signal[3]*0.98 or (df.loc[i, 'Date']-signal[1])>timedelta(days=5):
+                if df.loc[i, 'Close']>= signal[4]*1.01 or df.loc[i, 'Close']<= signal[4]*0.98 or (df.loc[i, 'Date']-signal[1])>timedelta(days=5):
                     signal = self.SellToCover('HSI', df, i, quantity, self.name)
                     flag = 0
                     signals.append(signal)
             elif flag ==2:
-                if df.loc[i, 'Close']<= signal[4]*0.99 or df.loc[i, 'Close']>= signal[3]*1.02 or (df.loc[i, 'Date']-signal[1])>timedelta(days=5):
+                if df.loc[i, 'Close']<= signal[4]*0.99 or df.loc[i, 'Close']>= signal[4]*1.02 or (df.loc[i, 'Date']-signal[1])>timedelta(days=5):
                     signal = self.BuyToCover('HSI', df, i, quantity, self.name)
                     flag = 0
                     signals.append(signal)
@@ -93,7 +93,7 @@ class MACD(Strategy):
 
         plt.grid()
         plt.savefig("image/MACD.png")
-
+        plt.close()
         return sig
 
 """test MACD
