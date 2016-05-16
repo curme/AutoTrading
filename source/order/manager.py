@@ -37,7 +37,7 @@ class OrderManager:
     # generate orders in different types
     def generateOrders(self, signal):
         if self.orderGenerateType == "VWAP": return self.orderVWAP(signal)
-        if self.orderGenerateType == "TVAP": return self.orderTWAP(signal)
+        if self.orderGenerateType == "TWAP": return self.orderTWAP(signal)
         if self.orderGenerateType == "TVOL": return self.orderTVOL(signal)
         return []
 
