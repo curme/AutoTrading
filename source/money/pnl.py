@@ -32,11 +32,11 @@ class pnlCalculator:
 
     def Getactualreturn(self):
         self.actualreturn = [pnl/(0.15*self.capital) for pnl in self.realizedpnl]
-        print "return: ", self.actualreturn
+        #print "return: ", self.actualreturn
 
     def Getannualizedeturn(self):
         self.annualizedreturn = [(1+r)**4-1 for r in self.actualreturn]
-        print "annual return: ", self.annualizedreturn
+        #print "annual return: ", self.annualizedreturn
 
     def Getvol(self):
         self.volatility = []
@@ -54,13 +54,13 @@ class pnlCalculator:
                             returnlist.append((1+r)**4-1)
             self.volatility.append(np.std(np.array(returnlist)))
             self.meanreturn.append(np.mean(returnlist))
-        print "mean return: ", self.meanreturn
-        print "Volatility: ", self.volatility
+        #print "mean return: ", self.meanreturn
+        #print "Volatility: ", self.volatility
 
     def GetSharperatio(self):
         #self.Sharpratio = [(self.meanreturn[i]-self.rate)/self.volatility[i] for i in xrange(len(self.strategy))]
         self.Sharpratio = [(self.actualreturn[i] - self.rate) / self.volatility[i] for i in xrange(len(self.strategy))]
-        print "Sharpe ratio: ", self.Sharpratio
+        #print "Sharpe ratio: ", self.Sharpratio
 
     def Getmdd(self):
         self.mdd = []
