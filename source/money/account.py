@@ -26,8 +26,8 @@ class AccountManager:
         self.margin     = margin
 
     # get quantity
-    def getQuantity(self, strategy, data, price, volume, method='FixedFraction', fixedFraction=0.05):
-        return self.position.getQuantity(strategy, data, price, volume, method, fixedFraction)
+    def getQuantity(self, strategy, price, volume, method='FixedFraction', fixedFraction=0.05):
+        return self.position.getQuantity(strategy, price, volume, method, fixedFraction)
 
     # query capital
     def queryCapital(self, strategy):
@@ -36,7 +36,7 @@ class AccountManager:
     # refresh Account data
     def execAccount(self, code, time, action, qnt, qntPer, price, strategy):
         pnl = self.position.updatePosition(strategy, code, qnt, price, action)
-        self.tradeBook.recordTally([code, time, action, qnt,  qntPer, price, pnl, self.queryCapital(strategy), strategy])
+        self.tradeBook.recordTally([code, time, action, qnt, qntPer, price, pnl, self.queryCapital(strategy), strategy])
 
     # return trade history
     def queryTradeHistory(self):
@@ -96,8 +96,8 @@ class PositionManager :
             self.subManagers[strategy] = self.SubManager(strategy, self.capital/float(len(self.strategies)))
 
     # get quantity
-    def getQuantity(self, strategy, data, price, volume, method, fixedFraction):
-        return self.subManagers[strategy].calQnt(data, price, volume, method, fixedFraction)
+    def getQuantity(self, strategy, price, volume, method, fixedFraction):
+        return self.subManagers[strategy].calQnt(price, volume, method, fixedFraction)
 
     # query capital
     def queryCapital(self, strategy):
@@ -127,13 +127,15 @@ class PositionManager :
             self.positions= pd.DataFrame(columns=["Code", "Position", "LPrice", "CumuQnt", "PxQ", "Base", "AvePrice"])
 
         # get quantity
-        def calQnt(self, data, price, volume, method, fixedFraction):
+        def calQnt(self, price, volume, method, fixedFraction):
 
             Equity = self.queryCapital()
             proportion = 0.15
+            maxDrawDown = 3800
 
             if method is 'FixedFraction':
-                TradeRisk = maxDrawDown(data)
+                # TradeRisk = maxDrawDown(data)
+                TradeRisk = maxDrawDown
                 N = fixedFraction * Equity / abs(TradeRisk)
                 if N >= volume * proportion : return math.trunc(volume * proportion)
                 else                        : return int(np.nan_to_num(N))
@@ -141,7 +143,8 @@ class PositionManager :
 
             if method is 'MaxDrawDown':
                 margin = 0.1
-                allocation = maxDrawDown(data) * 1.5 + margin * price
+                # allocation = maxDrawDown(data) * 1.5 + margin * price
+                allocation = maxDrawDown * 1.5 + margin * price
                 N = Equity / allocation
                 # if N >= volume * 0.1: return math.trunc(volume * 0.1)
                 # else                : return N

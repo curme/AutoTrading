@@ -7,7 +7,7 @@ import copy
 
 class OrderManager:
 
-    def __init__(self, orderGenerateType="VWAP"):
+    def __init__(self, orderGenerateType="POV"):
         self.setManager(orderGenerateType)
         print "Create a order manager."
 
@@ -16,42 +16,66 @@ class OrderManager:
 
     # convert the trading signal to trading orders
     def handleSignals(self, account, signals):
+        """
+           Code                Time       Action  Qnt    QntPer  Price   Equity        Strategy
+        0   HSI 2016-01-06 14:15:00        Short    0  0.000000  20983  25000000    ACOscillator
+        1   HSI 2016-01-07 09:30:00   BuyToCover    0  0.000000  20775  25000000    ACOscillator
+        2   HSI 2016-01-07 09:45:00         Long    5  0.135135  20628  25000000    ACOscillator
+        3   HSI 2016-01-12 10:15:00  SellToCover    5  0.192308  20009  24996905    ACOscillator
+        ...
+        16  HSI 2016-02-03 13:00:00        Short  337  0.096094  18926  25023833    ACOscillator
+        17  HSI 2016-02-11 09:15:00   BuyToCover  337  0.051592  18400  25201095    ACOscillator
+        18  HSI 2016-02-19 09:00:00        Short   41  0.148014  19232  25201095    ACOscillator
 
-        # 5.4 20:00 the format of signal [Strategy, Code, Time, Action, Price, QoP, Type]
-        for signal in signals:
-
-            strategy, code, time, action, expect_price, qop, type = signal
-
-            # # trade under signals
-        # self.orderAgent.handleSignals(self.account, signals)
+        :param account:
+        :param signals:
+        :return:
+        """
+        # signals
         for index, row in signals.iterrows():
 
             if row['Action'] == "Long" or row['Action'] == "Short":
-                self.account.execAccount(row['Code'], row['Time'], row['Action'],
-                                         self.account.getQuantity(row['Strategy'], dataSet, row['Price'], row['Volume']),
-                                         self.account.getQuantity(row['Strategy'], dataSet, row['Price'], row['Volume'])/row['Volume'],
-                                         row['Price'], row['Strategy'])
+                eachTrade = [   row['Code'],
+                                row['Time'],
+                                row['Action'],
+                                account.getQuantity(row['Strategy'], row['Price'], row['Volume']),
+                                account.getQuantity(row['Strategy'], row['Price'], row['Volume']) / row['Volume'],
+                                row['Price'],
+                                account.queryCapital(row['Strategy']),
+                                row['Strategy']
+                                ]
 
             elif row['Action'] == "BuyToCover":
-                Qnt = int(self.account.queryPosition(row['Code'], "Short", row['Strategy'])['CumuQnt'])
-                self.account.execAccount(row['Code'], row['Time'], row['Action'],
-                                         int(self.account.queryPosition(row['Code'], "Short", row['Strategy'])['CumuQnt']),
-                                         Qnt/row['Volume'],
-                                         row['Price'], row['Strategy'])
+                Qnt = int(account.queryPosition(row['Code'], "Short", row['Strategy'])['CumuQnt'])
+                eachTrade = [   row['Code'],
+                                row['Time'],
+                                row['Action'],
+                                int(account.queryPosition(row['Code'], "Short", row['Strategy'])['CumuQnt']),
+                                Qnt / row['Volume'],
+                                row['Price'],
+                                account.queryCapital(row['Strategy']),
+                                row['Strategy']
+                                ]
 
             elif row['Action'] == "SellToCover":
-                Qnt = int(self.account.queryPosition(row['Code'], "Long", row['Strategy'])['CumuQnt'])
-                self.account.execAccount(row['Code'], row['Time'], row['Action'],
-                                         int(self.account.queryPosition(row['Code'], "Long", row['Strategy'])['CumuQnt']),
-                                         Qnt/row['Volume'],
-                                         row['Price'], row['Strategy'])
+                Qnt = int(account.queryPosition(row['Code'], "Long", row['Strategy'])['CumuQnt'])
+                eachTrade = [   row['Code'],
+                                row['Time'],
+                                row['Action'],
+                                int(account.queryPosition(row['Code'], "Long", row['Strategy'])['CumuQnt']),
+                                Qnt / row['Volume'],
+                                row['Price'],
+                                account.queryCapital(row['Strategy']),
+                                row['Strategy']
+                                ]
 
 
             # generate orders
-            orders = self.generateOrders([code, time, action, expect_price, qnt, type])
+            # signal = [Code, Time, Action, Qnt, QntPer, Price, Equity, Strategy]
+            orders = self.generateOrders(eachTrade)
 
             # execute orders
-            self.executeOrders(account, orders, strategy)
+            # self.executeOrders(account, orders, strategy)
 
     # execute orders
     def executeOrders(self, account, orders, strategy):
@@ -172,23 +196,31 @@ class OrderManager:
 
     # generate orders in POV type
     def orderPOV(self, signal):
-        """
-           Code                Time       Action  Qnt    QntPer  Price     PnL    Equity        Strategy
-        0   HSI 2016-01-06 14:15:00        Short    0  0.000000  20983          25000000    ACOscillator
-        1   HSI 2016-01-07 09:30:00   BuyToCover    0  0.000000  20775       0  25000000    ACOscillator
-        2   HSI 2016-01-07 09:45:00         Long    5  0.135135  20628          25000000    ACOscillator
-        3   HSI 2016-01-12 10:15:00  SellToCover    5  0.192308  20009   -3095  24996905    ACOscillator
-        ...
-        16  HSI 2016-02-03 13:00:00        Short  337  0.096094  18926          25023833    ACOscillator
-        17  HSI 2016-02-11 09:15:00   BuyToCover  337  0.051592  18400  177262  25201095    ACOscillator
-        18  HSI 2016-02-19 09:00:00        Short   41  0.148014  19232          25201095    ACOscillator
 
-        :param signal:
-        :return:
         """
-        executionBook = pd.DataFrame(columns=["Code", "Time", "Action", "Qnt", "QntPer", "Price", "PnL", "Equity", "Strategy"])
-        for index, row in signal.iterrows():
-            pass
+           Code                Time       Action  Qnt    QntPer  Price   Equity        Strategy
+        0   HSI 2016-01-06 14:15:00        Short    0  0.000000  20983  25000000    ACOscillator
+        1   HSI 2016-01-07 09:30:00   BuyToCover    0  0.000000  20775  25000000    ACOscillator
+        2   HSI 2016-01-07 09:45:00         Long    5  0.135135  20628  25000000    ACOscillator
+        3   HSI 2016-01-12 10:15:00  SellToCover    5  0.192308  20009  24996905    ACOscillator
+        ...
+        16  HSI 2016-02-03 13:00:00        Short  337  0.096094  18926  25023833    ACOscillator
+        17  HSI 2016-02-11 09:15:00   BuyToCover  337  0.051592  18400  25201095    ACOscillator
+        18  HSI 2016-02-19 09:00:00        Short   41  0.148014  19232  25201095    ACOscillator
+
+        """
+        slippage = 0.01
+        splite   = 3
+        Code, Time, Action, Qnt, QntPer, Price, Equity, Strategy = signal
+        realOrder = []
+
+        if Qnt < 3      : return [signal]
+        if QntPer < 0.1 : return [signal]
+        if QntPer >= 0.1:
+            eachQnt     = Qnt / splite
+            remainQnt   = Qnt % splite
+            while Qnt is not 0:
+                realOrder.append([Code, Time, Action, , ])
 
         # THIS IS A EXAMPLE WITHOUT GENERATING ORDERS
         return []
