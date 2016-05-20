@@ -22,10 +22,30 @@ class OrderManager:
 
             strategy, code, time, action, expect_price, qop, type = signal
 
-            # cal trade qnt
-            qnt = 0
-            if action == "Long"        or action == "Short"     : qnt = qop
-            if action == "SellToCover" or action == "BuyToCover": qnt = account.calQnt(code, action, strategy, qop)
+            # # trade under signals
+        # self.orderAgent.handleSignals(self.account, signals)
+        for index, row in signals.iterrows():
+
+            if row['Action'] == "Long" or row['Action'] == "Short":
+                self.account.execAccount(row['Code'], row['Time'], row['Action'],
+                                         self.account.getQuantity(row['Strategy'], dataSet, row['Price'], row['Volume']),
+                                         self.account.getQuantity(row['Strategy'], dataSet, row['Price'], row['Volume'])/row['Volume'],
+                                         row['Price'], row['Strategy'])
+
+            elif row['Action'] == "BuyToCover":
+                Qnt = int(self.account.queryPosition(row['Code'], "Short", row['Strategy'])['CumuQnt'])
+                self.account.execAccount(row['Code'], row['Time'], row['Action'],
+                                         int(self.account.queryPosition(row['Code'], "Short", row['Strategy'])['CumuQnt']),
+                                         Qnt/row['Volume'],
+                                         row['Price'], row['Strategy'])
+
+            elif row['Action'] == "SellToCover":
+                Qnt = int(self.account.queryPosition(row['Code'], "Long", row['Strategy'])['CumuQnt'])
+                self.account.execAccount(row['Code'], row['Time'], row['Action'],
+                                         int(self.account.queryPosition(row['Code'], "Long", row['Strategy'])['CumuQnt']),
+                                         Qnt/row['Volume'],
+                                         row['Price'], row['Strategy'])
+
 
             # generate orders
             orders = self.generateOrders([code, time, action, expect_price, qnt, type])
