@@ -10,6 +10,8 @@ from source.strategies.MACD import *
 from source.strategies.ACOscillator import *
 from source.strategies.DM_RSI_ADX import *
 from source.strategies.oscillator3_13 import *
+from source.strategies.breakouts_swing import *
+from source.strategies.CCI_Correction import *
 
 from source.money.account import *
 
@@ -27,11 +29,15 @@ class StrategiesManager:
         dm_rsi_adx = DM_RSI_ADX()
         acoscillator = ACOscillator()
         oscillator3 = oscillator3_13()
+        breakouts = breakouts_swing()
+        CCI_correction = CCI_Correction()
 
         pool[macd.name] = macd
         pool[dm_rsi_adx.name] = dm_rsi_adx
         pool[acoscillator.name] = acoscillator
         pool[oscillator3.name] = oscillator3
+        pool[breakouts.name] = breakouts
+        pool[CCI_correction.name] = CCI_correction
 
         return pool
 

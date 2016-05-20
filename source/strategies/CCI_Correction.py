@@ -1,36 +1,3 @@
-"""
-Momentum trading: Using pre-market trading and range breaks out
-
-"""
-"""
-range break out
-
-Assumption is the market moves in the same direction as pre-market trade when market
-moves outside the prior day's range
-
-Short stocks making lower daily lows
-Long stocks making high daily highs
-
-
-Enter signal:
-Market open higher that previous day's high(H(1))
-When P > H(1)*1.01
-    Long P
-Stop loss
-    When P < P'*0.97
-profit taking
-    when P > P'*1.03
-
-Market open lower than previous day's low(L(1))
-When P < L(1)*1.01
-    Short L
-Stop Loss
-    when P > P'*1.03
-profit taking
-    when P < P'*0.97
-"""
-
-
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
@@ -39,25 +6,24 @@ import talib as tl
 from datetime import timedelta
 import matplotlib.gridspec as gridspec
 
+from talib import CCI
+
 from source.strategies.strategy import Strategy
 from source.dataManager.manager import DataManager as Data
 
-class breakouts_swing(Strategy):
+class CCI_Correction(Strategy):
 
     def __init__(self):
-        self.name = "breakouts_swing"
+        self.name = "CCI_Correction"
 
     def dailydata(self,df):
         self.daylist = []
-        self.dayid = []
-        dopen, dhigh, dlow, dclose=[],[],[],[]
+        dhigh, dlow, dclose=[],[],[]
         high,low=[],[]
         for i in df.index:
             dt = df.loc[i,'Date'].date()
             if not dt in self.daylist:
                 self.daylist.append(dt)
-                self.dayid.append(i)
-                dopen.append(df.loc[i,'Open'])
                 high,low=[],[]
             high.append(df.loc[i,'High'])
             low.append(df.loc[i,'Low'])
@@ -72,10 +38,12 @@ class breakouts_swing(Strategy):
                 dhigh.append(max(high))
                 dlow.append(min(low))
                 dclose.append(df.loc[i,'Close'])
-        self.dailyopen = map(float,dopen)
         self.dailyhigh = map(float, dhigh)
         self.dailylow = map(float, dlow)
         self.dailyclose = map(float, dclose)
+        #print self.daylist
+        #print len(self.daylist), len(self.dailyhigh), len(self.dailylow), len(self.dailyclose)
+
 
 
     def analysis(self, df, quantity=1):
@@ -85,47 +53,74 @@ class breakouts_swing(Strategy):
         :return:
         """
 
-        """ Data """
         self.dailydata(df)
+
+        """ Data """
+        float_close = Data.toFloatArray(df['Close'])
+        float_high = Data.toFloatArray(df['High'])
+        float_low = Data.toFloatArray(df['Low'])
+
+        CCI_5min = CCI(np.array(float_high),np.array(float_low),np.array(float_close), timeperiod=10)
+        CCI_day = CCI(np.array(self.dailyhigh),np.array(self.dailylow),np.array(self.dailyclose),timeperiod=10)
+
         #print CCI_5min, len(CCI_5min)
         #print CCI_day, len(CCI_day)
 
         """ Trade Logic """
         signals = []
         longshort_flag = 0
-        for i in xrange(3,len(self.daylist)):
+        for i in xrange(len(CCI_day)):
+            if np.isnan(CCI_day[i]):
+                continue
             dt = self.daylist[i]
             if longshort_flag == 0:
-                today_open = self.dailyopen[i]
-                pre_high = max(self.dailyhigh[i-1], self.dailyhigh[i-2], self.dailyhigh[i-3])
-                pre_low = min(self.dailylow[i-1], self.dailylow[i-2], self.dailylow[i-3])
-                if today_open > pre_high:
-                    signal = self.Long('HSI', df, self.dayid[i], quantity, self.name)
-                    longshort_flag = 1
-                    signals.append(signal)
-                if today_open < pre_low:
-                    signal = self.Short('HSI', df, self.dayid[i], quantity, self.name)
-                    longshort_flag = -1
-                    signals.append(signal)
+                intraCCI = []
+                num = []
+                if CCI_day[i] > 100:
+                    for j in xrange(len(CCI_5min)):
+                        if df.loc[j,'Date'].date() == dt:
+                            num.append(j)
+                            intraCCI.append(CCI_5min[j])
+                    for k in xrange(len(intraCCI)):
+                        if intraCCI[k] < -100:
+                            if k != len(intraCCI)-1:
+                                signal = self.Long('HSI', df, num[k], quantity, self.name)
+                                longshort_flag = 1
+                                signals.append(signal)
+                                break
+                if CCI_day[i] < -100:
+                    dt = self.daylist[i]
+                    for j in xrange(len(CCI_5min)):
+                        if df.loc[j,'Date'].date() == dt:
+                            num.append(j)
+                            intraCCI.append(CCI_5min[j])
+                    for k in xrange(len(intraCCI)):
+                        if intraCCI[k] > 100:
+                            if k != len(intraCCI)-1:
+                                signal = self.Short('HSI', df, num[k], quantity, self.name)
+                                longshort_flag = -1
+                                signals.append(signal)
+                                break
             if longshort_flag == 1:
-                for j in df.index:
+                for j in xrange(len(CCI_5min)):
                     if df.loc[j,'Date'] > signal[1] and df.loc[j,'Date'].date() == dt:
-                        if df.loc[j,'Open'] >= signal[4]*1.02 or df.loc[j,'Open'] <= signal[4]*0.98:
+                        if df.loc[j,'Open'] >= signal[4]*1.02 or df.loc[j,'Open'] <= signal[4]*0.99:
                             signal = self.SellToCover('HSI', df, j, quantity, self.name)
                             longshort_flag = 0
                             signals.append(signal)
                             break
             if longshort_flag == -1:
-                for j in df.index:
+                for j in xrange(len(CCI_5min)):
                     if df.loc[j,'Date'] > signal[1] and df.loc[j,'Date'].date() == dt:
-                        if df.loc[j,'Open'] <= signal[4]*0.98 or df.loc[j,'Open'] >= signal[4]*1.02:
+                        if df.loc[j,'Open'] <= signal[4]*0.98 or df.loc[j,'Open'] >= signal[4]*1.01:
                             signal = self.BuyToCover('HSI', df, j, quantity, self.name)
                             longshort_flag = 0
                             signals.append(signal)
                             break
 
-        #print signals
+        # print signals
         """ Signal Table """
+
         sig = pd.DataFrame(signals, columns=['Code', 'Time', 'Action', 'Qnt', 'Price', 'Volume', 'Strategy'])
 
 
@@ -144,6 +139,7 @@ class breakouts_swing(Strategy):
         print "=" * 100
 
         return sig
+
 
         """
         fig = plt.figure(1)
@@ -193,15 +189,41 @@ class breakouts_swing(Strategy):
         plot1.spines['top'].set_color('white')
         plot1.spines['right'].set_color('white')
 
-        plt.savefig("image/breakouts_swing.png", facecolor='#1B2631', edgecolor=None)
+
+        ### Plot 2
+        plot2.plot(df['Date'], CCI_5min, 'o')
+
+        plot2.set_axis_bgcolor('#1B2631')
+        plot2.tick_params(axis='x', colors='white')
+        plot2.tick_params(axis='y', colors='white')
+        plot2.spines['bottom'].set_color('white')
+        plot2.spines['left'].set_color('white')
+        plot2.spines['top'].set_color('white')
+        plot2.spines['right'].set_color('white')
+        plot2.xaxis.set_ticklabels([])
+
+        ### Plot 3
+        plot3.plot(self.daylist, CCI_day, 'o')
+
+        plot3.set_axis_bgcolor('#1B2631')
+        plot3.tick_params(axis='x', colors='white')
+        plot3.tick_params(axis='y', colors='white')
+        plot3.spines['bottom'].set_color('white')
+        plot3.spines['left'].set_color('white')
+        plot3.spines['top'].set_color('white')
+        plot3.spines['right'].set_color('white')
+        plot3.xaxis.set_ticklabels([])
+
+        plt.savefig("image/CCI_Correction.png", facecolor='#1B2631', edgecolor=None)
         plt.close()
         return sig
         """
+
 '''
 if __name__ == "__main__":
     np.set_printoptions(threshold=np.nan)
     pd.set_option("display.max_rows", 280)
     dt = Data()
     df = dt.getCSVData()
-    breakouts_swing().analysis(df)
+    CCI_Correction().analysis(df)
 '''
