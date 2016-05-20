@@ -146,9 +146,13 @@ class OrderManager:
 
     # generate orders in TWAP type
     def orderTWAP(self, signal):
-
-        # THIS IS A EXAMPLE WITHOUT GENERATING ORDERS
-        return []
+        code, time, action, expect_price, qnt, type = signal
+        order_size=qnt/time
+        order=[]
+        while qnt>0:
+	        order.append([code, time, action, price, qnt])
+	        qnt-=order_size
+        return order
 
     # generate orders in POV type
     def orderPOV(self, signal):
