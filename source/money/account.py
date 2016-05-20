@@ -66,7 +66,7 @@ class AccountManager:
 
 
 # the recorder to record trade history
-class TradeBook :
+class TradeBook:
 
     def __init__(self):
         self.tallies = pd.DataFrame(columns=["Code", "Time", "Action", "Qnt", "QntPer", "Price", "PnL", "Equity", "Strategy"])
@@ -216,9 +216,12 @@ if __name__ == "__main__":
     capital    = 100000000.0
     ac = AccountManager(strategies, capital)
 
+
+
     # code, time, action, qnt, price, strategy
-    ac.execAccount("HSI", "2015/1/2", "Long",       60, 20000, "ANG")
-    ac.execAccount("HSI", "2015/1/2", "Long",       40, 21000, "ANG")
+    '''
+    ac.execAccount("HSI", "2015/1/2", "Long",       60, 0.2, 20000, "ANG")
+    ac.execAccount("HSI", "2015/1/2", "Long",       40, 0.2, 21000, "ANG")
     ac.execAccount("HSI", "2015/1/2", "Long",       70, 21500, "ANG")
     ac.execAccount("HSI", "2015/1/2", "SellToCover",100,22000, "ANG")
     ac.execAccount("HSI", "2015/1/2", "Long",       120,21900, "ANG")
@@ -243,6 +246,7 @@ if __name__ == "__main__":
     ac.execAccount("FBI", "2015/1/7", "Short",      20, 20500, "BRA")
     ac.execAccount("FBI", "2015/1/8", "BuyToCover", 5,  20600, "BRA")
     ac.execAccount("FBI", "2015/1/9", "Long",       10, 20700, "BRA")
+    '''
 
     # print positions of all strategies
     ac.printPosition()
