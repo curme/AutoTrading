@@ -45,6 +45,7 @@ class AutoTradeManager:
         # query position
         # print self.account.queryPosition('HSI', 'Long', 'ACOscillator')
 
+
 if __name__ == "__main__":
 
     atm = AutoTradeManager()

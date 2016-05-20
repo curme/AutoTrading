@@ -142,12 +142,12 @@ class PositionManager :
                 # return int(N)
 
             if method is 'MaxDrawDown':
-                margin = 0.1
+                margin = 0.65
                 # allocation = maxDrawDown(data) * 1.5 + margin * price
                 allocation = maxDrawDown * 1.5 + margin * price
                 N = Equity / allocation
-                # if N >= volume * 0.1: return math.trunc(volume * 0.1)
-                # else                : return N
+                if N >= volume * proportion: return math.trunc(volume * proportion)
+                else                : return N
                 return int(N)
 
         # query capital of self strategy
