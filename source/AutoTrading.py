@@ -12,6 +12,7 @@ from source.dataManager.manager import DataManager
 from source.strategies.manager import StrategiesManager
 from source.money.account      import AccountManager
 from source.order.manager      import OrderManager
+from source.money.pnl import pnlCalculator
 
 class AutoTradeManager:
 
@@ -41,6 +42,8 @@ class AutoTradeManager:
 
         # print history
         self.account.printTradeHistory()
+        self.report = pnlCalculator(self.account.queryCapital("MACD"), self.account.queryTradeHistory())
+        self.report.run()
 
         # query position
         # print self.account.queryPosition('HSI', 'Long', 'ACOscillator')

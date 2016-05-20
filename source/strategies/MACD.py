@@ -10,7 +10,7 @@ import matplotlib.finance as mf
 from talib import MA_Type
 
 from source.strategies.strategy import Strategy
-from source.data.preprocessing import Data
+from source.dataManager.manager import DataManager as Data
 
 
 class MACD(Strategy):

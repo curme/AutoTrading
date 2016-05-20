@@ -9,7 +9,7 @@ from talib import MA_Type
 import matplotlib.gridspec as gridspec
 
 from source.strategies.strategy import Strategy
-from source.data.preprocessing import Data
+from source.dataManager.manager import DataManager as Data
 
 
 class oscillator3_13(Strategy):

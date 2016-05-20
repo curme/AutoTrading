@@ -1,4 +1,4 @@
-from source.data.preprocessing import Data
+from source.dataManager.manager import DataManager as Data
 import statistics as stat
 
 
