@@ -1,5 +1,5 @@
 import pandas as pd
-from source.data.preprocessing import Data
+from source.dataManager.manager import DataManager
 import datetime
 import operator
 import collections
@@ -75,13 +75,15 @@ class OrderManager:
             orders = self.generateOrders(eachTrade)
 
             # execute orders
-            # self.executeOrders(account, orders, strategy)
+            self.executeOrders(account, orders)
 
     # execute orders
-    def executeOrders(self, account, orders, strategy):
+    def executeOrders(self, account, orders):
 
         for order in orders:
-            account.execAccount(order + [strategy])
+            # Code, Time, Action, Qnt, QntPer, Price, Equity, Strategy = signal
+            Code, Time, Action, Qnt, QntPer, Price, Equity, Strategy = order
+            account.execAccount(Code, Time, Action, Qnt, QntPer, Price, Strategy)
 
 
     # generate orders in different types
@@ -89,6 +91,7 @@ class OrderManager:
         if self.orderGenerateType == "VWAP": return self.orderVWAP(signal)
         if self.orderGenerateType == "TWAP": return self.orderTWAP(signal)
         if self.orderGenerateType == "TVOL": return self.orderTVOL(signal)
+        if self.orderGenerateType == "POV" : return self.orderPOV(signal)
         return []
 
     # generate orders in VWAP type
@@ -109,7 +112,7 @@ class OrderManager:
         searchEDate = sDate - datetime.timedelta(days=1)
 
         # setup the data source and start to search
-        dt = Data()
+        dt = DataManager()
         df = dt.getCSVData()
         dataSet = dt.getInterval(searchSDate, searchEDate)
 
@@ -190,13 +193,9 @@ class OrderManager:
 
     # generate orders in TWAP type
     def orderTWAP(self, signal):
-        code, time, action, expect_price, qnt, type = signal
-        order_size=qnt/time
-        order=[]
-        while qnt>0:
-	        order.append([code, time, action, price, qnt])
-	        qnt-=order_size
-        return order
+
+        # THIS IS A EXAMPLE WITHOUT GENERATING ORDERS
+        return []
 
     # generate orders in POV type
     def orderPOV(self, signal):
@@ -213,21 +212,21 @@ class OrderManager:
         18  HSI 2016-02-19 09:00:00        Short   41  0.148014  19232  25201095    ACOscillator
 
         """
-        slippage = 0.01
-        splite   = 3
-        Code, Time, Action, Qnt, QntPer, Price, Equity, Strategy = signal
-        realOrder = []
-
-        if Qnt < 3      : return [signal]
-        if QntPer < 0.1 : return [signal]
-        if QntPer >= 0.1:
-            eachQnt     = Qnt / splite
-            remainQnt   = Qnt % splite
-            while Qnt is not 0:
-                realOrder.append([Code, Time, Action, , ])
+        # slippage = 0.01
+        # splite   = 3
+        # Code, Time, Action, Qnt, QntPer, Price, Equity, Strategy = signal
+        # realOrder = []
+        #
+        # if Qnt < 3      : return [signal]
+        # if QntPer < 0.1 : return [signal]
+        # if QntPer >= 0.1:
+        #     eachQnt     = Qnt / splite
+        #     remainQnt   = Qnt % splite
+        #     while Qnt is not 0:
+        #         pass
 
         # THIS IS A EXAMPLE WITHOUT GENERATING ORDERS
-        return []
+        return [signal]
 
     # generate orders in TWAP type
     def orderTVOL(self, signal):

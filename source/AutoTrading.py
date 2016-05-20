@@ -8,7 +8,7 @@ import datetime
 from PyQt5.QtWidgets import QApplication
 from interface.widgets import MainWindow
 
-from source.data.preprocessing import Data
+from source.dataManager.manager import DataManager
 from source.strategies.manager import StrategiesManager
 from source.money.account      import AccountManager
 from source.order.manager      import OrderManager
@@ -18,7 +18,7 @@ class AutoTradeManager:
     def __init__(self):
         self.app        = QApplication(sys.argv)
         self.mainWindow = MainWindow()
-        self.data       = Data()
+        self.data       = DataManager()
         self.strategies = StrategiesManager()
         self.account    = AccountManager(self.strategies.strategiesPool)
         self.orderAgent = OrderManager()

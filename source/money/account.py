@@ -205,7 +205,8 @@ class PositionManager :
             if action == "Long" or action == "SellToCover": pos = "Long"
             if action == "Short" or action == "BuyToCover": pos = "Short"
             record = self.positions.loc[self.positions.Code == code].loc[self.positions.Position == pos]
-            if len(record) == 0 : return "NO RECORD" # while there is no such position record
+            if len(record) == 0:
+                return pd.DataFrame([[0,0,0,0,0,0,0]], columns=["Code", "Position", "LPrice", "CumuQnt", "PxQ", "Base", "AvePrice"])  # while there is no such position record
             return record
 
 
