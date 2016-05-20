@@ -5,6 +5,7 @@ import pandas as pd
 import talib as tl
 from datetime import timedelta
 from talib import MA_Type
+import matplotlib.gridspec as gridspec
 
 from source.strategies.strategy import Strategy
 from source.data.preprocessing import Data
@@ -63,7 +64,7 @@ class DM_RSI_ADX(Strategy):
                     signals.append(signal)
 
         """ Signal List """
-        sig = pd.DataFrame(signals, columns=['Code', 'Time', 'Action', 'Qnt', 'Price', 'Strategy'])
+        sig = pd.DataFrame(signals, columns=['Code', 'Time', 'Action', 'Qnt', 'Price', 'Volume', 'Strategy'])
 
         """ Simple Profit """
         profits = []
@@ -80,30 +81,56 @@ class DM_RSI_ADX(Strategy):
         print "=" * 100
 
         """ Plot """
-        fig1 = plt.figure(1)
-        fig1.set_figheight(8)
-        fig1.set_figwidth(15)
+        fig = plt.figure(1)
+        fig.set_figheight(10)
+        fig.set_figwidth(15)
 
-        rect = fig1.patch
-        rect.set_facecolor('red')
-        ax = fig1.add_subplot(1, 1, 1)
+        gs = gridspec.GridSpec(20, 10)
+
+        rect = fig.patch
+        rect.set_facecolor('#1B2631')
+        plot1 = plt.subplot(gs[0:20, :])
+        # plot2 = plt.subplot(gs[13:20, :])
+        # plot3 = plt.subplot(gs[16:20, :])
 
         longSignals = sig[sig['Action'] == 'Long']
         sellToCoverSignals = sig[sig['Action'] == 'SellToCover']
         shortSignals = sig[sig['Action'] == 'Short']
         buyToCoverSignals = sig[sig['Action'] == 'BuyToCover']
 
-        ax.plot(df['Date'], df['Close'], longSignals['Time'], longSignals['Price'], 'r^',
-                 buyToCoverSignals['Time'], buyToCoverSignals['Price'], 'r^',
-                 shortSignals['Time'], shortSignals['Price'], 'gv',
-                 sellToCoverSignals['Time'], sellToCoverSignals['Price'], 'gv',
-                 markersize=10)
-        red_patch = mpatches.Patch(color='red', label='Long')
-        green_patch = mpatches.Patch(color='green', label='Short')
-        plt.legend(handles=[red_patch, green_patch])
-        plt.grid()
 
-        plt.savefig("strategies/image/DM_RSI_ADX.png")
+        ## Plot 1
+
+        markerSize = 15
+        priceline   = plot1.plot(df['Date'], df['Close'], '#F39C12')
+        longline    = plot1.plot(longSignals['Time'], longSignals['Price'], '^', markersize=markerSize)
+        bcline      = plot1.plot(buyToCoverSignals['Time'], buyToCoverSignals['Price'], '^', markersize=markerSize)
+        shortline   = plot1.plot(shortSignals['Time'], shortSignals['Price'], 'v', markersize=markerSize)
+        scline      = plot1.plot(sellToCoverSignals['Time'], sellToCoverSignals['Price'], 'v', markersize=markerSize)
+
+        # Set every line
+        plt.setp(longline, color='#E74C3C', markeredgecolor='#E74C3C')
+        plt.setp(bcline, color='#E74C3C', markeredgecolor='#E74C3C')
+        plt.setp(shortline, color='#27AE60', markeredgecolor='#27AE60')
+        plt.setp(scline, color='#27AE60', markeredgecolor='#27AE60')
+
+        # Legend and grid
+        red_patch = mpatches.Patch(color='#E74C3C', label='Long')
+        green_patch = mpatches.Patch(color='#27AE60', label='Short')
+        plot1.legend(handles=[red_patch, green_patch])
+        plot1.grid(True, color='white')
+
+
+        # Axis
+        plot1.set_axis_bgcolor('#1B2631')
+        plot1.tick_params(axis='x', colors='white')
+        plot1.tick_params(axis='y', colors='white')
+        plot1.spines['bottom'].set_color('white')
+        plot1.spines['left'].set_color('white')
+        plot1.spines['top'].set_color('white')
+        plot1.spines['right'].set_color('white')
+
+        plt.savefig("strategies/image/DM_RSI_ADX.png", facecolor='#17202A', edgecolor=None)
         plt.close()
         return sig
 

@@ -5,6 +5,7 @@ import pandas as pd
 import talib as tl
 from datetime import timedelta
 import matplotlib.gridspec as gridspec
+import matplotlib.finance as mf
 
 from talib import MA_Type
 
@@ -61,7 +62,7 @@ class MACD(Strategy):
                     signals.append(signal)
 
         """ Signal Table """
-        sig = pd.DataFrame(signals, columns=['Code', 'Time', 'Action', 'Qnt', 'Price', 'Strategy'])
+        sig = pd.DataFrame(signals, columns=['Code', 'Time', 'Action', 'Qnt', 'Price', 'Volume', 'Strategy'])
 
         """ Simple Profit Calculation """
         profits = []
@@ -86,9 +87,9 @@ class MACD(Strategy):
 
         rect = fig.patch
         rect.set_facecolor('#1B2631')
-        plot1 = plt.subplot(gs[0:10, :])
-        plot2 = plt.subplot(gs[11:15, :])
-        plot3 = plt.subplot(gs[16:20, :])
+        plot1 = plt.subplot(gs[0:12, :])
+        plot2 = plt.subplot(gs[13:20, :])
+        # plot3 = plt.subplot(gs[16:20, :])
 
         longSignals = sig[sig['Action'] == 'Long']
         sellToCoverSignals = sig[sig['Action'] == 'SellToCover']
@@ -96,9 +97,10 @@ class MACD(Strategy):
         buyToCoverSignals = sig[sig['Action'] == 'BuyToCover']
 
 
-        ### Plot 1
+        ## Plot 1
+
         markerSize = 15
-        priceline   = plot1.plot(df['Date'], df['Close'], '#F39C12', linewidth=2)
+        priceline   = plot1.plot(df['Date'], df['Close'], '#F39C12')
         longline    = plot1.plot(longSignals['Time'], longSignals['Price'], '^', markersize=markerSize)
         bcline      = plot1.plot(buyToCoverSignals['Time'], buyToCoverSignals['Price'], '^', markersize=markerSize)
         shortline   = plot1.plot(shortSignals['Time'], shortSignals['Price'], 'v', markersize=markerSize)
@@ -115,6 +117,7 @@ class MACD(Strategy):
         green_patch = mpatches.Patch(color='#27AE60', label='Short')
         plot1.legend(handles=[red_patch, green_patch])
         plot1.grid(True, color='white')
+
 
         # Axis
         plot1.set_axis_bgcolor('#1B2631')
@@ -140,20 +143,8 @@ class MACD(Strategy):
         plot2.spines['right'].set_color('white')
         plot2.xaxis.set_ticklabels([])
 
-        ### Plot 3
-        plot3.plot(df['Date'], stochastic_D, 'o')
-        plot3.plot(df['Date'], stochastic_K, 'o')
 
-        plot3.set_axis_bgcolor('#1B2631')
-        plot3.tick_params(axis='x', colors='white')
-        plot3.tick_params(axis='y', colors='white')
-        plot3.spines['bottom'].set_color('white')
-        plot3.spines['left'].set_color('white')
-        plot3.spines['top'].set_color('white')
-        plot3.spines['right'].set_color('white')
-        plot3.xaxis.set_ticklabels([])
-
-        plt.savefig("strategies/image/MACD.png", facecolor='#1B2631', edgecolor=None)
+        plt.savefig("strategies/image/MACD.png", facecolor='#17202A', edgecolor=None)
         plt.close()
         return sig
 

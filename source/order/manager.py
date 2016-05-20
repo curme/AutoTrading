@@ -1,4 +1,5 @@
-from data.preprocessing import Data
+import pandas as pd
+from source.data.preprocessing import Data
 import datetime
 import operator
 import collections
@@ -92,11 +93,11 @@ class OrderManager:
         for timeslot in timeslotVolumes:
             timeslotAvgVolumes[timeslot] = timeslotVolumes[timeslot]/timeslotCounts[timeslot]
             totalTimelotAvgVolume += timeslotVolumes[timeslot]/timeslotCounts[timeslot]
-        
+
         # find out how many percentage each time interval trading volumes included
         for timeslot in timeslotAvgVolumes:
             timeslotAvgVolumePercentages[timeslot] = timeslotAvgVolumes[timeslot]*1.0 / totalTimelotAvgVolume
-        
+
         # put the data in a sortable container
         sortedTimeslotAvgVolumePercentages = collections.OrderedDict(sorted(timeslotAvgVolumePercentages.items(), key=operator.itemgetter(0)))
 
@@ -126,8 +127,8 @@ class OrderManager:
             print tempVolume
             print sortedTimeslotAvgVolumePercentages.values()[loopIndex]
             tradableVol = round(tempVolume*1.0 * sortedTimeslotAvgVolumePercentages.values()[loopIndex])
-            
-            if(totalTradeSize - tradableVol<0):                
+
+            if(totalTradeSize - tradableVol<0):
                 orderList.append([code, tempSearchDate.strftime('%Y-%m-%d %H:%M:%S'), action, totalTradeSize, tempPrice])
                 totalTradeSize = 0
             else:
@@ -137,12 +138,37 @@ class OrderManager:
             if loopIndex >= timeslotSize:
                 loopIndex = 0
                 tempSearchDate = tempSearchDate + datetime.timedelta(days=1)
-        
+
         # return the order list
+        print "orderList" , "*" * 100
+        print orderList
         return orderList
 
     # generate orders in TWAP type
     def orderTWAP(self, signal):
+
+        # THIS IS A EXAMPLE WITHOUT GENERATING ORDERS
+        return []
+
+    # generate orders in POV type
+    def orderPOV(self, signal):
+        """
+           Code                Time       Action  Qnt    QntPer  Price     PnL    Equity        Strategy
+        0   HSI 2016-01-06 14:15:00        Short    0  0.000000  20983          25000000    ACOscillator
+        1   HSI 2016-01-07 09:30:00   BuyToCover    0  0.000000  20775       0  25000000    ACOscillator
+        2   HSI 2016-01-07 09:45:00         Long    5  0.135135  20628          25000000    ACOscillator
+        3   HSI 2016-01-12 10:15:00  SellToCover    5  0.192308  20009   -3095  24996905    ACOscillator
+        ...
+        16  HSI 2016-02-03 13:00:00        Short  337  0.096094  18926          25023833    ACOscillator
+        17  HSI 2016-02-11 09:15:00   BuyToCover  337  0.051592  18400  177262  25201095    ACOscillator
+        18  HSI 2016-02-19 09:00:00        Short   41  0.148014  19232          25201095    ACOscillator
+
+        :param signal:
+        :return:
+        """
+        executionBook = pd.DataFrame(columns=["Code", "Time", "Action", "Qnt", "QntPer", "Price", "PnL", "Equity", "Strategy"])
+        for index, row in signal.iterrows():
+            pass
 
         # THIS IS A EXAMPLE WITHOUT GENERATING ORDERS
         return []

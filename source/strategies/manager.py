@@ -39,9 +39,9 @@ class StrategiesManager:
         for strategy in self.strategiesPool:
             self.signals = pd.concat([self.signals, self.strategiesPool[strategy].analysis(dataSet)], axis=0, ignore_index=True)
 
-        print "*" * 70
-        print "\t" * 5, "Signal Table for All Strategies"
-        print "*" * 70
+        print "*" * 80
+        print "\t" * 6, "Signal Table for All Strategies"
+        print "*" * 80
         print self.signals
         return self.signals
 

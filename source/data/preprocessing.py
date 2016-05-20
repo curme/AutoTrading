@@ -2,7 +2,7 @@
 Finance data preprocessing
 """
 import pandas as pd
-import xlrd
+# import xlrd
 
 class Data:
 

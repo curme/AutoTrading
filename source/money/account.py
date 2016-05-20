@@ -3,8 +3,16 @@ Account
 """
 
 import pandas as pd
+import numpy as np
+pd.options.display.max_rows = 999
+pd.set_option('expand_frame_repr', False)
+
+import math
 
 # account manager
+from source.strategies.util import maxDrawDown
+
+
 class AccountManager:
 
     def __init__(self, strategies=[], capital=100000000.0, margin=0.3):
@@ -17,10 +25,18 @@ class AccountManager:
         self.tradeBook  = TradeBook()
         self.margin     = margin
 
+    # get quantity
+    def getQuantity(self, strategy, data, price, volume, method='FixedFraction', fixedFraction=0.05):
+        return self.position.getQuantity(strategy, data, price, volume, method, fixedFraction)
+
+    # query capital
+    def queryCapital(self, strategy):
+        return self.position.queryCapital(strategy)
+
     # refresh Account data
-    def execAccount(self, code, time, action, qnt, price, strategy):
+    def execAccount(self, code, time, action, qnt, qntPer, price, strategy):
         pnl = self.position.updatePosition(strategy, code, qnt, price, action)
-        self.tradeBook.recordTally([code, time, action, qnt, price, pnl])
+        self.tradeBook.recordTally([code, time, action, qnt,  qntPer, price, pnl, self.queryCapital(strategy), strategy])
 
     # return trade history
     def queryTradeHistory(self):
@@ -33,6 +49,10 @@ class AccountManager:
     # print positions for selected strategies
     def printPosition(self, strategies = []):
         self.position.printPosition(strategies)
+
+    # query one position record of selected strategy
+    def queryPosition(self, code, action, strategy):
+        return self.position.queryPosition(code, action, strategy)
 
     # cal qnt
     def calQnt(self, code, action, strategy, proportion = 1):
@@ -49,7 +69,7 @@ class AccountManager:
 class TradeBook :
 
     def __init__(self):
-        self.tallies = pd.DataFrame(columns=["Code", "Time", "Action", "Qnt", "Price", "PnL"])
+        self.tallies = pd.DataFrame(columns=["Code", "Time", "Action", "Qnt", "QntPer", "Price", "PnL", "Equity", "Strategy"])
 
     # insert a tally
     def recordTally(self, tally):
@@ -61,7 +81,7 @@ class TradeBook :
 
     # print trade history
     def printHistory(self):
-        print "History " + "/" * 40
+        print "Trade History " + "/" * 100
         print self.tallies
 
 
@@ -74,6 +94,14 @@ class PositionManager :
         self.subManagers= {}
         for strategy in self.strategies:
             self.subManagers[strategy] = self.SubManager(strategy, self.capital/float(len(self.strategies)))
+
+    # get quantity
+    def getQuantity(self, strategy, data, price, volume, method, fixedFraction):
+        return self.subManagers[strategy].calQnt(data, price, volume, method, fixedFraction)
+
+    # query capital
+    def queryCapital(self, strategy):
+        return self.subManagers[strategy].queryCapital()
 
     # update position
     def updatePosition(self, strategy, code, qnt, price, action):
@@ -98,6 +126,31 @@ class PositionManager :
             self.capital  = capital
             self.positions= pd.DataFrame(columns=["Code", "Position", "LPrice", "CumuQnt", "PxQ", "Base", "AvePrice"])
 
+        # get quantity
+        def calQnt(self, data, price, volume, method, fixedFraction):
+
+            Equity = self.queryCapital()
+            proportion = 0.15
+
+            if method is 'FixedFraction':
+                TradeRisk = maxDrawDown(data)
+                N = fixedFraction * Equity / abs(TradeRisk)
+                if N >= volume * proportion : return math.trunc(volume * proportion)
+                else                        : return int(np.nan_to_num(N))
+                # return int(N)
+
+            if method is 'MaxDrawDown':
+                margin = 0.1
+                allocation = maxDrawDown(data) * 1.5 + margin * price
+                N = Equity / allocation
+                # if N >= volume * 0.1: return math.trunc(volume * 0.1)
+                # else                : return N
+                return int(N)
+
+        # query capital of self strategy
+        def queryCapital(self):
+            return self.capital
+
         # update position of self strategy
         def updatePosition(self, code, action, price, qnt):
 
@@ -120,8 +173,14 @@ class PositionManager :
             # calculate PnL
             # when after position update, the function will return a PnL
             pnl = ""
-            if action == "SellToCover" : pnl = qnt * (price - float(self.positions.loc[index, "AvePrice"]))
-            if action == "BuyToCover"  : pnl = qnt * (float(self.positions.loc[index, "AvePrice"] - price))
+            if action == "SellToCover" :
+                pnl = np.nan_to_num(qnt * (price - float(self.positions.loc[index, "AvePrice"])))
+                self.capital += pnl
+                # print self.capital
+            if action == "BuyToCover"  :
+                pnl = np.nan_to_num(qnt * (float(self.positions.loc[index, "AvePrice"] - price)))
+                self.capital += pnl
+                # print self.capital
 
             # update Base and AvePrice
             # init AvePrice if needed
