@@ -197,8 +197,19 @@ class OrderManager:
     # generate orders in TWAP type
     def orderTWAP(self, signal):
 
-        # THIS IS A EXAMPLE WITHOUT GENERATING ORDERS
-        return []
+        code = signal[0]
+        sDate = signal[1]
+        action = signal[2]
+        expectPrice = signal[3]
+        totalTradeSize = signal[4]
+        type = signal[5]
+
+        order_size=totalTradeSize/sDate
+        order=[]
+        while totalTradeSize>0
+        	order.append([code,sDate,action,expectPrice,totalTradeSize])
+        	totalTradeSize-=order_size
+        return order
 
     # generate orders in TWAP type
     def orderPOV(self, signal):
