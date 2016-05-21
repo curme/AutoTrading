@@ -206,16 +206,79 @@ class OrderManager:
 
         order_size=totalTradeSize/sDate
         order=[]
-        while totalTradeSize>0
+        while totalTradeSize > 0:
         	order.append([code,sDate,action,expectPrice,totalTradeSize])
         	totalTradeSize-=order_size
         return order
 
     # generate orders in TWAP type
     def orderPOV(self, signal):
+        # Q(t + deltaT) - Q(t) = -min[gamma(V(t) - V(t - deltaT)), Q(t)]
+        # Take the last 7 days transaction data for historical data analysis
+        historyDays = 7
+        participationRatio = 0.1
+        # analysis the signal
+        # signal = [Code, Time, Action, Qnt, QntPer, Price, Equity, Strategy]
+        
+        code = signal[0]
+        sDate = signal[1]
+        action = signal[2]
+        totalTradeSize = signal[3]
+        #percentageQuantity = signal[4]
+        price = signal[5]
+        #equity = signal[6]
+        #strategy = signal[7]
+        
+        # setup the data source and start to search
+        dt = DataManager()
+        df = dt.getCSVData()
+        #dataSet = dt.getInterval(searchSDate, searchEDate)
+        tempSearchDate = sDate
+        dataSet = dt.getInterval(tempSearchDate, tempSearchDate)
+        #stimeStr = str(sDate.hour) + ':' + str(sDate.minute) + ':' + str(sDate.second)
+        #sTimeslot = datetime.datetime.strptime(stimeStr, "%H:%M:%S").time()
+        curTimeslot = sTimeslot
+        
+        # setup the order List
+        orderList = []
+        
+        # loop until all expected trading volumes used up
+        while totalTradeSize > 0:
+            
+            dataSet = dt.getInterval(tempSearchDate, tempSearchDate)
+            for row in dataSet.iterrows():
+                tempTime = row[1]['Date']
+                tempVolume = row[1]['Volume']
+                tempPrice = row[1]['Open']
+                #tempTimeslotStr = str(tempTime.hour) + ':' + str(tempTime.minute) + ':' + str(tempTime.second)
+                #tempTimeslot = datetime.datetime.strptime(tempTimeslotStr, "%H:%M:%S").time()
+                if tempTime < curTimeslot:
+                    continue
+                else:
+                    break
+        
+            #print tempVolume
 
+            tradableVol = participationRatio * tempVolume
+            
+            if (totalTradeSize - tradableVol < 0):
+                orderList.append([code, tempSearchDate.strftime('%Y-%m-%d %H:%M:%S'), action, totalTradeSize, tempPrice])
+                totalTradeSize = 0
+            else:
+                totalTradeSize -= tradableVol
+                orderList.append([code, tempSearchDate.strftime('%Y-%m-%d %H:%M:%S'), action, tradableVol, tempPrice])
+            
+            curTimeslot = curTimeslot + datetime.timedelta(minutes=1)
+            
+            if curTimeslot.day >= tempSearchDate.day:
+                tempSearchDate = tempSearchDate + datetime.timedelta(days=1)
+
+        # return the order list
+        print "orderList", "*" * 100
+        print orderList
+        return orderList
         # THIS IS A EXAMPLE WITHOUT GENERATING ORDERS
-        return []
+        #return []
 
     # generate orders in POV type
     def orderSimple(self, signal):
