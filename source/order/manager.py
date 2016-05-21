@@ -268,7 +268,7 @@ class OrderManager:
                 totalTradeSize -= tradableVol
                 orderList.append([code, tempSearchDate.strftime('%Y-%m-%d %H:%M:%S'), action, tradableVol, tempPrice])
             
-            curTimeslot = curTimeslot + datetime.timedelta(minutes=1)
+            curTimeslot = tempTime + datetime.timedelta(minutes=1)
             
             if curTimeslot.day > tempSearchDate.day:
                 tempSearchDate = tempSearchDate + datetime.timedelta(days=1)
