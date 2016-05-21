@@ -270,7 +270,7 @@ class OrderManager:
             
             curTimeslot = curTimeslot + datetime.timedelta(minutes=1)
             
-            if curTimeslot.day >= tempSearchDate.day:
+            if curTimeslot.day > tempSearchDate.day:
                 tempSearchDate = tempSearchDate + datetime.timedelta(days=1)
 
         # return the order list
