@@ -5,9 +5,9 @@ import operator
 import collections
 import copy
 
-class OrderManager:
 
-    def __init__(self, orderGenerateType="POV"):
+class OrderManager:
+    def __init__(self, orderGenerateType="Default"):
         self.setManager(orderGenerateType)
         print "Create a order manager."
 
@@ -35,40 +35,39 @@ class OrderManager:
         for index, row in signals.iterrows():
 
             if row['Action'] == "Long" or row['Action'] == "Short":
-                eachTrade = [   row['Code'],
-                                row['Time'],
-                                row['Action'],
-                                account.getQuantity(row['Strategy'], row['Price'], row['Volume']),
-                                account.getQuantity(row['Strategy'], row['Price'], row['Volume']) / row['Volume'],
-                                row['Price'],
-                                account.queryCapital(row['Strategy']),
-                                row['Strategy']
-                                ]
+                eachTrade = [row['Code'],
+                             row['Time'],
+                             row['Action'],
+                             account.getQuantity(row['Strategy'], row['Price'], row['Volume']),
+                             account.getQuantity(row['Strategy'], row['Price'], row['Volume']) / row['Volume'],
+                             row['Price'],
+                             account.queryCapital(row['Strategy']),
+                             row['Strategy']
+                             ]
 
             elif row['Action'] == "BuyToCover":
                 Qnt = int(account.queryPosition(row['Code'], "Short", row['Strategy'])['CumuQnt'])
-                eachTrade = [   row['Code'],
-                                row['Time'],
-                                row['Action'],
-                                int(account.queryPosition(row['Code'], "Short", row['Strategy'])['CumuQnt']),
-                                Qnt / row['Volume'],
-                                row['Price'],
-                                account.queryCapital(row['Strategy']),
-                                row['Strategy']
-                                ]
+                eachTrade = [row['Code'],
+                             row['Time'],
+                             row['Action'],
+                             int(account.queryPosition(row['Code'], "Short", row['Strategy'])['CumuQnt']),
+                             Qnt / row['Volume'],
+                             row['Price'],
+                             account.queryCapital(row['Strategy']),
+                             row['Strategy']
+                             ]
 
             elif row['Action'] == "SellToCover":
                 Qnt = int(account.queryPosition(row['Code'], "Long", row['Strategy'])['CumuQnt'])
-                eachTrade = [   row['Code'],
-                                row['Time'],
-                                row['Action'],
-                                int(account.queryPosition(row['Code'], "Long", row['Strategy'])['CumuQnt']),
-                                Qnt / row['Volume'],
-                                row['Price'],
-                                account.queryCapital(row['Strategy']),
-                                row['Strategy']
-                                ]
-
+                eachTrade = [row['Code'],
+                             row['Time'],
+                             row['Action'],
+                             int(account.queryPosition(row['Code'], "Long", row['Strategy'])['CumuQnt']),
+                             Qnt / row['Volume'],
+                             row['Price'],
+                             account.queryCapital(row['Strategy']),
+                             row['Strategy']
+                             ]
 
             # generate orders
             # signal = [Code, Time, Action, Qnt, QntPer, Price, Equity, Strategy]
@@ -85,13 +84,14 @@ class OrderManager:
             Code, Time, Action, Qnt, QntPer, Price, Equity, Strategy = order
             account.execAccount(Code, Time, Action, Qnt, QntPer, Price, Strategy)
 
-
     # generate orders in different types
     def generateOrders(self, signal):
-        if self.orderGenerateType == "VWAP": return self.orderVWAP(signal)
-        if self.orderGenerateType == "TWAP": return self.orderTWAP(signal)
-        if self.orderGenerateType == "TVOL": return self.orderTVOL(signal)
-        if self.orderGenerateType == "POV" : return self.orderPOV(signal)
+        if self.orderGenerateType == "VWAP"  : return self.orderVWAP(signal)
+        if self.orderGenerateType == "TWAP"  : return self.orderTWAP(signal)
+        if self.orderGenerateType == "POV"   : return self.orderPOV(signal)
+        if self.orderGenerateType == "Simple": return self.orderPOV(signal)
+        if self.orderGenerateType == "Default": return self.orderDefault(signal)
+
         return []
 
     # generate orders in VWAP type
@@ -108,7 +108,7 @@ class OrderManager:
         type = signal[5]
 
         # setup the search start data and end date for searching the historical data
-        searchSDate = sDate - datetime.timedelta(days=historyDays+1)
+        searchSDate = sDate - datetime.timedelta(days=historyDays + 1)
         searchEDate = sDate - datetime.timedelta(days=1)
 
         # setup the data source and start to search
@@ -126,8 +126,8 @@ class OrderManager:
         for row in dataSet.iterrows():
             tempTime = row[1]['Date']
             tempVolume = row[1]['Volume']
-            tempTimeslotStr = str(tempTime.hour)+':'+str(tempTime.minute)+':'+str(tempTime.second)
-            tempTimeslot=datetime.datetime.strptime(tempTimeslotStr,"%H:%M:%S").time()
+            tempTimeslotStr = str(tempTime.hour) + ':' + str(tempTime.minute) + ':' + str(tempTime.second)
+            tempTimeslot = datetime.datetime.strptime(tempTimeslotStr, "%H:%M:%S").time()
             if not tempTimeslot in timeslotVolumes:
                 timeslotVolumes[tempTimeslot] = tempVolume
                 timeslotCounts[tempTimeslot] = 1
@@ -138,19 +138,20 @@ class OrderManager:
         # find out the average past 7 day trading volumes for each time interval
         totalTimelotAvgVolume = 0
         for timeslot in timeslotVolumes:
-            timeslotAvgVolumes[timeslot] = timeslotVolumes[timeslot]/timeslotCounts[timeslot]
-            totalTimelotAvgVolume += timeslotVolumes[timeslot]/timeslotCounts[timeslot]
+            timeslotAvgVolumes[timeslot] = timeslotVolumes[timeslot] / timeslotCounts[timeslot]
+            totalTimelotAvgVolume += timeslotVolumes[timeslot] / timeslotCounts[timeslot]
 
         # find out how many percentage each time interval trading volumes included
         for timeslot in timeslotAvgVolumes:
-            timeslotAvgVolumePercentages[timeslot] = timeslotAvgVolumes[timeslot]*1.0 / totalTimelotAvgVolume
+            timeslotAvgVolumePercentages[timeslot] = timeslotAvgVolumes[timeslot] * 1.0 / totalTimelotAvgVolume
 
         # put the data in a sortable container
-        sortedTimeslotAvgVolumePercentages = collections.OrderedDict(sorted(timeslotAvgVolumePercentages.items(), key=operator.itemgetter(0)))
+        sortedTimeslotAvgVolumePercentages = collections.OrderedDict(
+            sorted(timeslotAvgVolumePercentages.items(), key=operator.itemgetter(0)))
 
         # ready the iterators to loop all transaction intervals
-        stimeStr = str(sDate.hour)+':'+str(sDate.minute)+':'+str(sDate.second)
-        sTimeslot=datetime.datetime.strptime(tempTimeslotStr,"%H:%M:%S").time()
+        stimeStr = str(sDate.hour) + ':' + str(sDate.minute) + ':' + str(sDate.second)
+        sTimeslot = datetime.datetime.strptime(tempTimeslotStr, "%H:%M:%S").time()
         sIndex = sortedTimeslotAvgVolumePercentages.keys().index(sTimeslot)
         timeslotSize = len(sortedTimeslotAvgVolumePercentages)
         loopIndex = sIndex
@@ -163,7 +164,8 @@ class OrderManager:
         while totalTradeSize > 0:
             # use the historical volume percentage to calculate how many trading volume should choose in current time interval
             timeInterval = sortedTimeslotAvgVolumePercentages.keys()[loopIndex]
-            tempSearchDate = tempSearchDate.replace(hour=timeInterval.hour, minute=timeInterval.minute, second=timeInterval.second)
+            tempSearchDate = tempSearchDate.replace(hour=timeInterval.hour, minute=timeInterval.minute,
+                                                    second=timeInterval.second)
             dataSet = dt.getInterval(tempSearchDate, tempSearchDate)
             tempVolume = 0
             tempPrice = 0
@@ -173,21 +175,22 @@ class OrderManager:
                 break
             print tempVolume
             print sortedTimeslotAvgVolumePercentages.values()[loopIndex]
-            tradableVol = round(tempVolume*1.0 * sortedTimeslotAvgVolumePercentages.values()[loopIndex])
+            tradableVol = round(tempVolume * 1.0 * sortedTimeslotAvgVolumePercentages.values()[loopIndex])
 
-            if(totalTradeSize - tradableVol<0):
-                orderList.append([code, tempSearchDate.strftime('%Y-%m-%d %H:%M:%S'), action, totalTradeSize, tempPrice])
+            if (totalTradeSize - tradableVol < 0):
+                orderList.append(
+                        [code, tempSearchDate.strftime('%Y-%m-%d %H:%M:%S'), action, totalTradeSize, tempPrice])
                 totalTradeSize = 0
             else:
                 totalTradeSize -= tradableVol
                 orderList.append([code, tempSearchDate.strftime('%Y-%m-%d %H:%M:%S'), action, tradableVol, tempPrice])
-            loopIndex+=1
+            loopIndex += 1
             if loopIndex >= timeslotSize:
                 loopIndex = 0
                 tempSearchDate = tempSearchDate + datetime.timedelta(days=1)
 
         # return the order list
-        print "orderList" , "*" * 100
+        print "orderList", "*" * 100
         print orderList
         return orderList
 
@@ -197,9 +200,14 @@ class OrderManager:
         # THIS IS A EXAMPLE WITHOUT GENERATING ORDERS
         return []
 
-    # generate orders in POV type
+    # generate orders in TWAP type
     def orderPOV(self, signal):
 
+        # THIS IS A EXAMPLE WITHOUT GENERATING ORDERS
+        return []
+
+    # generate orders in POV type
+    def orderSimple(self, signal):
         """
            Code                Time       Action  Qnt    QntPer  Price   Equity        Strategy
         0   HSI 2016-01-06 14:15:00        Short    0  0.000000  20983  25000000    ACOscillator
@@ -212,24 +220,62 @@ class OrderManager:
         18  HSI 2016-02-19 09:00:00        Short   41  0.148014  19232  25201095    ACOscillator
 
         """
-        # slippage = 0.01
-        # splite   = 3
-        # Code, Time, Action, Qnt, QntPer, Price, Equity, Strategy = signal
-        # realOrder = []
-        #
-        # if Qnt < 3      : return [signal]
-        # if QntPer < 0.1 : return [signal]
-        # if QntPer >= 0.1:
-        #     eachQnt     = Qnt / splite
-        #     remainQnt   = Qnt % splite
-        #     while Qnt is not 0:
-        #         pass
+        slippage = 0.001
+        splite   = 3
+        Code, Time, Action, Qnt, QntPer, Price, Equity, Strategy = signal
+        QntPerMax = 0.05
+        realOrder = []
+
+        if Qnt < 3      : return [signal]
+        if QntPer < QntPerMax : return [signal]
+        if QntPer >= QntPerMax:
+            #initiate order data
+            remainQnt = Qnt
+            remainQntPer = QntPer
+            eachQnt     = int(Qnt * QntPerMax / QntPer)
+            #handle boundary condition
+            if(eachQnt < 1):
+                eachQnt = 1
+            eachQntPer  = (eachQnt * 1.0 / Qnt) * QntPer
+            remainQntPer = remainQntPer - eachQntPer
+            remainQnt   = remainQnt - eachQnt
+
+            #generate the first order
+            eachSignal = [Code, Time, Action, eachQnt, eachQntPer, Price, Equity, Strategy]
+            realOrder.append(eachSignal)
+
+            #generate the following orders
+            while remainQntPer >= QntPerMax :
+                eachQnt     = int(Qnt * QntPerMax / QntPer)
+                #handle boundary condition
+                if(eachQnt <1):
+                    eachQnt = 1
+                eachQntPer  = (eachQnt*1.0 / Qnt) * QntPer
+                remainQnt   = remainQnt - eachQnt
+                remainQntPer = remainQntPer - eachQntPer
+                Time = Time + datetime.timedelta(minutes=5)
+                if (Action == 'Short' or Action == 'SellToCover'):
+                    Price = Price * (1 - slippage)
+                    eachSignal = [Code, Time, Action, eachQnt, eachQntPer,Price,Equity, Strategy]
+                    realOrder.append(eachSignal)
+                if (Action == 'Buy' or Action == 'BuyToCover'):
+                    Price = Price * (1 + slippage)
+                    eachSignal = [Code, Time, Action, eachQnt, eachQntPer,Price,Equity, Strategy]
+                    realOrder.append(eachSignal)
+
+            #generate the last order
+            Time = Time + datetime.timedelta(minutes=5)
+            if (Action == 'Short' or Action == 'SellToCover'):
+                Price = Price * (1 - slippage)
+            if (Action == 'Buy' or Action == 'BuyToCover'):
+                Price = Price * (1 + slippage)
+            eachSignal = [Code, Time, Action, remainQnt, remainQntPer,Price,Equity, Strategy]
+            realOrder.append(eachSignal)
+            return realOrder
+
+        return [signal]
+
+    def orderDefault(self, signal):
 
         # THIS IS A EXAMPLE WITHOUT GENERATING ORDERS
         return [signal]
-
-    # generate orders in TWAP type
-    def orderTVOL(self, signal):
-
-        # THIS IS A EXAMPLE WITHOUT GENERATING ORDERS
-        return []
