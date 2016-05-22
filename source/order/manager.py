@@ -197,6 +197,10 @@ class OrderManager:
     # generate orders in TWAP type
     def orderTWAP(self, signal):
 
+        # Take the last 7 days transaction data for historical data analysis
+        historyDays = 7
+
+        # analysis the signal
         code = signal[0]
         sDate = signal[1]
         action = signal[2]
@@ -204,14 +208,52 @@ class OrderManager:
         totalTradeSize = signal[4]
         type = signal[5]
 
-        order_size=totalTradeSize/sDate
+        # setup the search start data and end date for searching the historical data
+        searchSDate = sDate - datetime.timedelta(days=historyDays + 1)
+        searchEDate = sDate - datetime.timedelta(days=1)
+
+        # setup the data source and start to search
+        dt = DataManager()
+        df = dt.getCSVData()
+        dataSet = dt.getInterval(searchSDate, searchEDate)
+
+        # predefined dictionaries
+        timeslotPrice = {}
+        timeslotCounts = {}
+        timeslotAvgPrice = {}
+
+        # find out the total past 7 days closing price for each time interval
+        for row in dataSet.iterrows():
+            tempTime = row[1]['Date']
+			tempPrice = row[1]['Close']
+            tempTimeslotStr = str(tempTime.hour) + ':' + str(tempTime.minute) + ':' + str(tempTime.second)
+            tempTimeslot = datetime.datetime.strptime(tempTimeslotStr, "%H:%M:%S").time()
+            if not tempTimeslot in timeslotVolumes:
+				timeslotPrice[tempTimeslot] = tempPrice
+                timeslotCounts[tempTimeslot] = 1
+            else:
+				timeslotPrice[tempTimeslot] += tempPrice
+                timeslotCounts[tempTimeslot] += 1
+		
+		# find out the average past 7 day trading price for each time interval
+        totalTimeslotAvgPrice = 0
+        for timeslot in timeslotPrice:
+            timeslotAvgPrice[timeslot] = timeslotPrice[timeslot] / timeslotCounts[timeslot]
+            totalTimeslotAvgPrice += timeslotPrice[timeslot] / timeslotCounts[timeslot]
+        
+		order_size=totalTradeSize/timeslotCounts
         order=[]
+		
         while totalTradeSize > 0:
-        	order.append([code,sDate,action,expectPrice,totalTradeSize])
-        	totalTradeSize-=order_size
+        	if totalTradeSize>=order_size:
+				order.append([code,sDate,action,totalTimeslotAvgPrice,order_size])
+				totalTradeSize-=order_size
+        	else:
+				order.append([code,sDate,action,totalTimeslotAvgPrice,totalTradeSize])
+				totalTradeSize=0
         return order
 
-    # generate orders in TWAP type
+    # generate orders in POV type
     def orderPOV(self, signal):
         # Q(t + deltaT) - Q(t) = -min[gamma(V(t) - V(t - deltaT)), Q(t)]
         # Take the last 7 days transaction data for historical data analysis
