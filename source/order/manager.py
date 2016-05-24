@@ -7,7 +7,7 @@ import copy
 
 
 class OrderManager:
-    def __init__(self, orderGenerateType="Default"):
+    def __init__(self, orderGenerateType="Simple"):
         self.setManager(orderGenerateType)
         print "Create a order manager."
 
@@ -89,7 +89,7 @@ class OrderManager:
         if self.orderGenerateType == "VWAP"  : return self.orderVWAP(signal)
         if self.orderGenerateType == "TWAP"  : return self.orderTWAP(signal)
         if self.orderGenerateType == "POV"   : return self.orderPOV(signal)
-        if self.orderGenerateType == "Simple": return self.orderPOV(signal)
+        if self.orderGenerateType == "Simple": return self.orderSimple(signal)
         if self.orderGenerateType == "Default": return self.orderDefault(signal)
 
         return []
@@ -225,14 +225,14 @@ class OrderManager:
         # find out the total past 7 days closing price for each time interval
         for row in dataSet.iterrows():
             tempTime = row[1]['Date']
-			tempPrice = row[1]['Close']
+            tempPrice = row[1]['Close']
             tempTimeslotStr = str(tempTime.hour) + ':' + str(tempTime.minute) + ':' + str(tempTime.second)
             tempTimeslot = datetime.datetime.strptime(tempTimeslotStr, "%H:%M:%S").time()
             if not tempTimeslot in timeslotVolumes:
-				timeslotPrice[tempTimeslot] = tempPrice
+                timeslotPrice[tempTimeslot] = tempPrice
                 timeslotCounts[tempTimeslot] = 1
             else:
-				timeslotPrice[tempTimeslot] += tempPrice
+                timeslotPrice[tempTimeslot] += tempPrice
                 timeslotCounts[tempTimeslot] += 1
 		
 		# find out the average past 7 day trading price for each time interval
@@ -240,8 +240,8 @@ class OrderManager:
         for timeslot in timeslotPrice:
             timeslotAvgPrice[timeslot] = timeslotPrice[timeslot] / timeslotCounts[timeslot]
             totalTimeslotAvgPrice += timeslotPrice[timeslot] / timeslotCounts[timeslot]
-        
-		order_size=totalTradeSize/timeslotCounts
+
+        order_size=totalTradeSize/timeslotCounts
         order=[]
 		
         while totalTradeSize > 0:
