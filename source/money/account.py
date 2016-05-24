@@ -15,13 +15,16 @@ from source.strategies.util import maxDrawDown
 
 class AccountManager:
 
-    def __init__(self, strategies=[], capital=100000000.0, margin=0.3):
-        self.setAccount(strategies, capital, margin)
+    def __init__(self):
+        self.setAccount([], 0)
         print "Create an empty account."
 
-    def setAccount(self, strategies, capital, margin):
+    # set account
+    def setAccount(self, strategies, capital, margin=0.3):
         self.capital    = capital
-        self.position   = PositionManager(strategies, self.capital)
+        self.strategies = strategies
+        self.position   = PositionManager()
+        self.position.setPositionManagers(self.strategies, self.capital)
         self.tradeBook  = TradeBook()
         self.margin     = margin
 
@@ -88,12 +91,17 @@ class TradeBook:
 # the manager to manage account positions
 class PositionManager :
 
-    def __init__(self, strategies, capital):
+    def __init__(self):
+        self.setPositionManagers([], 0)
+        print "Create an empty position manager."
+
+    # set position manager
+    def setPositionManagers(self, strategies, capital):
         self.strategies = strategies
-        self.capital    = capital
-        self.subManagers= {}
+        self.capital = capital
+        self.subManagers = {}
         for strategy in self.strategies:
-            self.subManagers[strategy] = self.SubManager(strategy, self.capital/float(len(self.strategies)))
+            self.subManagers[strategy] = self.SubManager(strategy, self.capital / float(len(self.strategies)))
 
     # get quantity
     def getQuantity(self, strategy, price, volume, method, fixedFraction):

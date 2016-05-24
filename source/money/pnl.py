@@ -7,9 +7,9 @@ from source.strategies.util import maxDrawDown
 
 
 class pnlCalculator:
-    def __init__(self, money, tradehistory):
-        self.capital = money
-        self.tradebook = tradehistory
+    def __init__(self, account):
+        self.capital = account.capital / float(len(account.strategies))
+        self.tradebook = account.queryTradeHistory()
         self.rate = 1.37 / 100
 
     def departStrategy(self):

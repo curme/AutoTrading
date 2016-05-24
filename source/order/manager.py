@@ -9,7 +9,7 @@ import copy
 class OrderManager:
     def __init__(self, orderGenerateType="Simple"):
         self.setManager(orderGenerateType)
-        print "Create a order manager."
+        print "Create an order manager."
 
     def setManager(self, orderGenerateType):
         self.orderGenerateType = orderGenerateType
@@ -86,10 +86,10 @@ class OrderManager:
 
     # generate orders in different types
     def generateOrders(self, signal):
-        if self.orderGenerateType == "VWAP"  : return self.orderVWAP(signal)
-        if self.orderGenerateType == "TWAP"  : return self.orderTWAP(signal)
-        if self.orderGenerateType == "POV"   : return self.orderPOV(signal)
-        if self.orderGenerateType == "Simple": return self.orderSimple(signal)
+        if self.orderGenerateType == "VWAP"   : return self.orderVWAP(signal)
+        if self.orderGenerateType == "TWAP"   : return self.orderTWAP(signal)
+        if self.orderGenerateType == "POV"    : return self.orderPOV(signal)
+        if self.orderGenerateType == "Simple" : return self.orderSimple(signal)
         if self.orderGenerateType == "Default": return self.orderDefault(signal)
 
         return []

@@ -17,31 +17,28 @@ from source.money.account import *
 
 class StrategiesManager:
 
-    def __init__(self):
+    def __init__(self, strategies = []):
         self.signals = pd.DataFrame(columns=["Code", "Time", "Action", "Qnt", "Price", "Strategy"])
-        self.strategiesPool = self.initStrategies()
+        self.strategiesPool = {}
+        self.setStrategies(strategies)
 
-    def initStrategies(self):
+    def setStrategies(self, strategies):
+
         pool = {}
-
         # new strategies object
-        macd = MACD()
-        dm_rsi_adx = DM_RSI_ADX()
-        acoscillator = ACOscillator()
-        oscillator3 = oscillator3_13()
-        breakouts = breakouts_swing()
-        CCI_correction = CCI_Correction()
+        for strategy in strategies:
+            if strategy == "ACOscillator"   : s=ACOscillator()  ;   pool[s.name] = s; continue;
+            if strategy == "CCI_Correction" : s=CCI_Correction();   pool[s.name] = s; continue;
+            if strategy == "DM_RSI_ADX"     : s=DM_RSI_ADX();       pool[s.name] = s; continue;
+            if strategy == "MACD"           : s=MACD();             pool[s.name] = s; continue;
+            if strategy == "breakouts_swing": s=breakouts_swing();  pool[s.name] = s; continue;
+            if strategy == "oscillator3_13" : s=oscillator3_13();   pool[s.name] = s; continue;
 
-        pool[macd.name] = macd
-        pool[dm_rsi_adx.name] = dm_rsi_adx
-        pool[acoscillator.name] = acoscillator
-        pool[oscillator3.name] = oscillator3
-        pool[breakouts.name] = breakouts
-        pool[CCI_correction.name] = CCI_correction
-
-        return pool
+        for strategySubManager in self.strategiesPool: del strategySubManager
+        self.strategiesPool = pool
 
     def monitorMarket(self, dataSet):
+        self.signals = None
         for strategy in self.strategiesPool:
             self.signals = pd.concat([self.signals, self.strategiesPool[strategy].analysis(dataSet)], axis=0, ignore_index=True)
 

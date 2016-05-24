@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import (QMainWindow, QWidget, QAction, qApp, QTabWidget,
 
 import re
 import time
+import thread
 
 class MainWindow(QMainWindow):
 
@@ -296,10 +297,7 @@ class MainWindow(QMainWindow):
 
     def pageTechAnLaunch(self):
 
-        self.pageTechAnLaunchButton.setStyleSheet(self.launchWdgtProcesQSS)
-        self.pageTechAnLaunchButton.setText("Processing")
-
-        capital      = "".join(re.split("\$| |,", self.pageTechAnCapitalEdit.text()))
+        capital      = int("".join(re.split("\$| |,", self.pageTechAnCapitalEdit.text())))
         securityCode = self.pageTechAnSecurityCombo.currentText()
 
         investmentStrategies = []
@@ -324,8 +322,11 @@ class MainWindow(QMainWindow):
         if self.pageTechAnPMtdRadioButtonFixedFraction.isChecked()  : positionManagement = "FixedFraction"
         if self.pageTechAnPMtdRadioButtonMaximDrawDown.isChecked()  : positionManagement = "MaximumDrawDown"
 
-        self.ATM.launchTechnicalAnalysis(capital, securityCode, investmentStrategies, startTime, endTime, tradeStrategy, positionManagement)
-        self.pageTechAnLaunchFinish()
+        thread.start_new_thread(self.ATM.launchTechnicalAnalysis, (capital, securityCode, investmentStrategies, startTime, endTime, tradeStrategy, positionManagement))
+
+    def pageTechAnLaunchProcess(self):
+        self.pageTechAnLaunchButton.setStyleSheet(self.launchWdgtProcesQSS)
+        self.pageTechAnLaunchButton.setText("Processing")
 
     def pageTechAnLaunchFinish(self):
         self.pageTechAnLaunchButton.setStyleSheet(self.launchWdgtReadyQSS)
