@@ -18,10 +18,10 @@ class DataManager:
         subdirectories = os.listdir(path)
         name_list = []
         for subDir in subdirectories:
-            file_paths = self.get_filepaths(subDir)
+            file_paths = self.get_filepaths(path+'/'+subDir)
             for file_path in file_paths:
                 file_name = file_path.split("/")
-                asset = file_name[1].split('.csv')
+                asset = file_name[-1].split('.csv')
                 name_list.append(asset[0])
         return name_list
 

@@ -18,11 +18,14 @@ class AutoTradeManager:
 
     def __init__(self):
         self.app        = QApplication(sys.argv)
-        self.mainWindow = MainWindow()
         self.data       = DataManager()
         self.strategies = StrategiesManager()
         self.account    = AccountManager(self.strategies.strategiesPool)
         self.orderAgent = OrderManager()
+        self.mainWindow = MainWindow(self)
+
+        #self.run(pd.Timestamp("2015-12-31 16:00:00"), pd.Timestamp("2016-02-26 16:00:00"), "HSI")
+        sys.exit(self.app.exec_())
 
     # reset system
     def resetSystem(self, capital, margin):
@@ -48,6 +51,16 @@ class AutoTradeManager:
         # query position
         # print self.account.queryPosition('HSI', 'Long', 'ACOscillator')
 
+    def launchTechnicalAnalysis(self, capital, securityCode, investmentStrategies, startTime, endTime, tradeStrategy, positionManagement):
+
+        dataSet = self.data.getCSVData(securityCode)
+        signals = self.strategies.monitorMarket(dataSet)
+        self.orderAgent.handleSignals(self.account, signals)
+        
+        # print history
+        self.account.printTradeHistory()
+        self.report = pnlCalculator(self.account.queryCapital("MACD"), self.account.queryTradeHistory())
+        self.report.run()
 
 if __name__ == "__main__":
 
