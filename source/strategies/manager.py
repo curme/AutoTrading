@@ -12,6 +12,7 @@ from source.strategies.DM_RSI_ADX import *
 from source.strategies.oscillator3_13 import *
 from source.strategies.breakouts_swing import *
 from source.strategies.CCI_Correction import *
+from source.strategies.pairstrading import *
 
 from source.money.account import *
 
@@ -33,7 +34,7 @@ class StrategiesManager:
             if strategy == "MACD"           : s=MACD();             pool[s.name] = s; continue;
             if strategy == "breakouts_swing": s=breakouts_swing();  pool[s.name] = s; continue;
             if strategy == "oscillator3_13" : s=oscillator3_13();   pool[s.name] = s; continue;
-
+            if strategy == "pairstrading" : s=pairstrading();   pool[s.name] = s; continue;
         for strategySubManager in self.strategiesPool: del strategySubManager
         self.strategiesPool = pool
 
