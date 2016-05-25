@@ -116,6 +116,9 @@ class oscillator3_13(Strategy):
         scline      = plot1.plot(sellToCoverSignals['Time'], sellToCoverSignals['Price'], 'v', markersize=markerSize)
 
         # Set every line
+        plt.title("Oscillator3_13", color='white', fontsize=20)
+        plt.xlabel("Time", color='white')
+        plt.ylabel("Price", color='white')
         plt.setp(longline, color='#E74C3C', markeredgecolor='#E74C3C')
         plt.setp(bcline, color='#E74C3C', markeredgecolor='#E74C3C')
         plt.setp(shortline, color='#27AE60', markeredgecolor='#27AE60')

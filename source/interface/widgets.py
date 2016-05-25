@@ -10,6 +10,9 @@ import re
 import time
 import thread
 
+from PyQt5.uic.properties import QtCore
+
+
 class MainWindow(QMainWindow):
 
     def __init__(self, autoTradingSystem):
@@ -565,10 +568,11 @@ class MainWindow(QMainWindow):
                 self.pageTrdHisBookTitles.setStyleSheet(self.pageSubTitleQSS)
                 titlesHBox = QHBoxLayout()
                 titlesHBox.setContentsMargins(10, 0, 20, 0)
+                strategy = QLabel("Strategy")
                 titlesHBox.addWidget(QLabel("Strategy"))
                 titlesHBox.addWidget(QLabel("Realized PnL"))
                 titlesHBox.addWidget(QLabel("Return"))
-                areturn = QLabel("Annualized Return")
+                areturn = QLabel("Annual Return")
                 areturn.setFixedWidth(130)
                 titlesHBox.addWidget(areturn)
                 titlesHBox.addWidget(QLabel("Volatility"))
@@ -591,20 +595,22 @@ class MainWindow(QMainWindow):
                 for i in xrange(0, len(pnlReport)):
                     widget = QWidget()
                     widget.setFixedHeight(15)
-                    widget.setStyleSheet("color:#ffffff")
+                    if pnlReport.ix[i]["realized PnL"] > 0: widget.setStyleSheet("color:#fa2020")
+                    if pnlReport.ix[i]["realized PnL"] < 0: widget.setStyleSheet("color:#27AE60")
                     hbox   = QHBoxLayout()
                     hbox.setContentsMargins(20, 0, 10, 0)
                     strategy = QLabel(pnlReport.ix[i]["Strategy"])
                     strategy.setFixedWidth(100)
                     hbox.addWidget(strategy)
-                    hbox.addWidget(QLabel(str(round(pnlReport.ix[i]["realized PnL"], 5))))
-                    hbox.addWidget(QLabel(str(round(pnlReport.ix[i]["Return"], 5))))
-                    areturn = QLabel(str(round(pnlReport.ix[i]["Annualized Return"], 5)))
+                    hbox.addWidget(QLabel(str("{0:.2f}".format(pnlReport.ix[i]["realized PnL"]))))
+                    hbox.addWidget(QLabel(str("{0:.4f}".format(pnlReport.ix[i]["Return"]))))
+                    areturn = QLabel(str("{0:.4f}".format(pnlReport.ix[i]["Annualized Return"])))
+                    # hbox.addWidget(QLabel(str("{0:.2f}".format(tradeHistory.ix[i]["QntPer"] * 100))))
                     areturn.setFixedWidth(130)
                     hbox.addWidget(areturn)
-                    hbox.addWidget(QLabel(str(round(pnlReport.ix[i]["Volatility"], 5))))
-                    hbox.addWidget(QLabel(str(round(pnlReport.ix[i]["Sharpe Ratio"], 5))))
-                    mdd = QLabel(str(pnlReport.ix[i]["MDD"]))
+                    hbox.addWidget(QLabel(str("{0:.4f}".format(pnlReport.ix[i]["Volatility"]))))
+                    hbox.addWidget(QLabel(str("{0:.4f}".format(pnlReport.ix[i]["Sharpe Ratio"]))))
+                    mdd = QLabel(str("{0:.2f}".format(pnlReport.ix[i]["MDD"])))
                     mdd.setFixedWidth(155)
                     hbox.addWidget(mdd)
                     widget.setLayout(hbox)
@@ -663,11 +669,13 @@ class MainWindow(QMainWindow):
                 code.setFixedWidth(50)
                 titlesHBox.addWidget(code)
                 time = QLabel("Time")
-                time.setFixedWidth(135)
+                time.setFixedWidth(145)
                 titlesHBox.addWidget(time)
                 titlesHBox.addWidget(QLabel("Action"))
-                titlesHBox.addWidget(QLabel("Qnt"))
-                titlesHBox.addWidget(QLabel("QntPer"))
+                qnt = QLabel("Qnt")
+                qnt.setFixedWidth(50)
+                titlesHBox.addWidget(qnt)
+                titlesHBox.addWidget(QLabel("Occupy(%)"))
                 titlesHBox.addWidget(QLabel("Price"))
                 titlesHBox.addWidget(QLabel("PnL"))
                 titlesHBox.addWidget(QLabel("Equity"))
@@ -688,14 +696,17 @@ class MainWindow(QMainWindow):
                 for i in xrange(0, len(tradeHistory)):
                     widget = QWidget()
                     widget.setFixedHeight(15)
-                    widget.setStyleSheet("color:#ffffff")
+                    if tradeHistory.ix[i]["Action"] == "Short" : widget.setStyleSheet("color:#27AE60")
+                    if tradeHistory.ix[i]["Action"] == "SellToCover"  : widget.setStyleSheet("color:#27AE60")
+                    if tradeHistory.ix[i]["Action"] == "Long" : widget.setStyleSheet("color:#fa2020")
+                    if tradeHistory.ix[i]["Action"] == "BuyToCover" : widget.setStyleSheet("color:#fa2020")
                     hbox   = QHBoxLayout()
                     hbox.setContentsMargins(20, 0, 10, 0)
                     code = QLabel(str(tradeHistory.ix[i]["Code"])); code.setFixedWidth(50); hbox.addWidget(code);
-                    time = QLabel(str(tradeHistory.ix[i]["Time"])); time.setFixedWidth(135); hbox.addWidget(time);
+                    time = QLabel(str(tradeHistory.ix[i]["Time"])); time.setFixedWidth(145); hbox.addWidget(time);
                     hbox.addWidget(QLabel(tradeHistory.ix[i]["Action"]))
-                    hbox.addWidget(QLabel(str(tradeHistory.ix[i]["Qnt"])))
-                    hbox.addWidget(QLabel(str(round(tradeHistory.ix[i]["QntPer"], 9))))
+                    qnt = QLabel(str(tradeHistory.ix[i]["Qnt"])); qnt.setFixedWidth(50); hbox.addWidget(qnt);
+                    hbox.addWidget(QLabel(str("{0:.2f}".format(tradeHistory.ix[i]["QntPer"] * 100))))
                     hbox.addWidget(QLabel(str(round(tradeHistory.ix[i]["Price"]))))
                     pnl = QLabel();
                     if not tradeHistory.ix[i]["PnL"] == "": pnl = QLabel(str(round(float(tradeHistory.ix[i]["PnL"]))));
@@ -734,6 +745,7 @@ class MainWindow(QMainWindow):
                 "background: qlineargradient(x1: 0, y1: 1, x2: 0, y2: 0, stop: 0 #ffcb06, stop: 1.0 #ff9c28);" +
                 "border-radius:3px}" +
             "QLabel {" +
+                "font-family:'ArialRegular';" +
                 "padding: 10px;}" +
             "QPushButton {" +
                 "height: 20px}" +

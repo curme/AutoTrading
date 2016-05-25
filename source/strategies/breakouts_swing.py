@@ -143,9 +143,8 @@ class breakouts_swing(Strategy):
         print(profits)
         print "=" * 100
 
-        return sig
 
-        """
+        """ Plot """
         fig = plt.figure(1)
         fig.set_figheight(10)
         fig.set_figwidth(15)
@@ -154,9 +153,9 @@ class breakouts_swing(Strategy):
 
         rect = fig.patch
         rect.set_facecolor('#1B2631')
-        plot1 = plt.subplot(gs[0:10, :])
-        plot2 = plt.subplot(gs[11:15, :])
-        plot3 = plt.subplot(gs[16:20, :])
+        plot1 = plt.subplot(gs[0:20, :])
+        # plot2 = plt.subplot(gs[13:20, :])
+        # plot3 = plt.subplot(gs[16:20, :])
 
         longSignals = sig[sig['Action'] == 'Long']
         sellToCoverSignals = sig[sig['Action'] == 'SellToCover']
@@ -164,15 +163,19 @@ class breakouts_swing(Strategy):
         buyToCoverSignals = sig[sig['Action'] == 'BuyToCover']
 
 
-        ### Plot 1
+        ## Plot 1
+
         markerSize = 15
-        priceline   = plot1.plot(df['Date'], df['Close'], '#F39C12', linewidth=2)
+        priceline   = plot1.plot(df['Date'], df['Close'], '#F39C12')
         longline    = plot1.plot(longSignals['Time'], longSignals['Price'], '^', markersize=markerSize)
         bcline      = plot1.plot(buyToCoverSignals['Time'], buyToCoverSignals['Price'], '^', markersize=markerSize)
         shortline   = plot1.plot(shortSignals['Time'], shortSignals['Price'], 'v', markersize=markerSize)
         scline      = plot1.plot(sellToCoverSignals['Time'], sellToCoverSignals['Price'], 'v', markersize=markerSize)
 
         # Set every line
+        plt.title("Breakouts Swing", color='white', fontsize=20)
+        plt.xlabel("Time", color='white')
+        plt.ylabel("Price", color='white')
         plt.setp(longline, color='#E74C3C', markeredgecolor='#E74C3C')
         plt.setp(bcline, color='#E74C3C', markeredgecolor='#E74C3C')
         plt.setp(shortline, color='#27AE60', markeredgecolor='#27AE60')
@@ -184,6 +187,7 @@ class breakouts_swing(Strategy):
         plot1.legend(handles=[red_patch, green_patch])
         plot1.grid(True, color='white')
 
+
         # Axis
         plot1.set_axis_bgcolor('#1B2631')
         plot1.tick_params(axis='x', colors='white')
@@ -193,15 +197,8 @@ class breakouts_swing(Strategy):
         plot1.spines['top'].set_color('white')
         plot1.spines['right'].set_color('white')
 
-        plt.savefig("image/breakouts_swing.png", facecolor='#1B2631', edgecolor=None)
+        plt.savefig("strategies/image/breakouts_swing.png", facecolor='#17202A', edgecolor=None)
         plt.close()
         return sig
-        """
-'''
-if __name__ == "__main__":
-    np.set_printoptions(threshold=np.nan)
-    pd.set_option("display.max_rows", 280)
-    dt = Data()
-    df = dt.getCSVData()
-    breakouts_swing().analysis(df)
-'''
+
+

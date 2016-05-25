@@ -154,9 +154,9 @@ class PositionManager :
                 # allocation = maxDrawDown(data) * 1.5 + margin * price
                 allocation = maxDrawDown * 1.5 + margin * price
                 N = Equity / allocation
-                if N >= volume * proportion: return math.trunc(volume * proportion)
-                else                : return N
-                return int(N)
+                if N >= volume * proportion : return math.trunc(volume * proportion)
+                else                        : return int(np.nan_to_num(N))
+                # return int(N)
 
         # query capital of self strategy
         def queryCapital(self):

@@ -1,5 +1,6 @@
 import pandas as pd
 from source.dataManager.manager import DataManager
+from datetime import datetime
 import datetime
 import operator
 import collections
@@ -33,13 +34,12 @@ class OrderManager:
         """
         # signals
         for index, row in signals.iterrows():
-
             if row['Action'] == "Long" or row['Action'] == "Short":
                 eachTrade = [row['Code'],
                              row['Time'],
                              row['Action'],
                              account.getQuantity(row['Strategy'], row['Price'], row['Volume']),
-                             account.getQuantity(row['Strategy'], row['Price'], row['Volume']) / row['Volume'],
+                             float(account.getQuantity(row['Strategy'], row['Price'], row['Volume'])) / float(row['Volume']),
                              row['Price'],
                              account.queryCapital(row['Strategy']),
                              row['Strategy']
@@ -51,7 +51,7 @@ class OrderManager:
                              row['Time'],
                              row['Action'],
                              int(account.queryPosition(row['Code'], "Short", row['Strategy'])['CumuQnt']),
-                             Qnt / row['Volume'],
+                             float(Qnt) / float(row['Volume']),
                              row['Price'],
                              account.queryCapital(row['Strategy']),
                              row['Strategy']
@@ -63,7 +63,7 @@ class OrderManager:
                              row['Time'],
                              row['Action'],
                              int(account.queryPosition(row['Code'], "Long", row['Strategy'])['CumuQnt']),
-                             Qnt / row['Volume'],
+                             float(Qnt) / float(row['Volume']),
                              row['Price'],
                              account.queryCapital(row['Strategy']),
                              row['Strategy']
@@ -100,12 +100,14 @@ class OrderManager:
         historyDays = 7
 
         # analysis the signal
-        code = signal[0]
-        sDate = signal[1]
-        action = signal[2]
-        expectPrice = signal[3]
-        totalTradeSize = signal[4]
-        type = signal[5]
+        code, sDate, action, totalTradeSize, QntPer, expectPrice, Equity, type = signal
+        # code = signal[0]
+        # sDate = signal[1]
+        # action = signal[2]
+        # totalTradeSize = signal[3]
+        # expectPrice = signal[5]
+        # qntPer = signal[6]
+        # type = signal[5]
 
         # setup the search start data and end date for searching the historical data
         searchSDate = sDate - datetime.timedelta(days=historyDays + 1)
@@ -179,11 +181,11 @@ class OrderManager:
 
             if (totalTradeSize - tradableVol < 0):
                 orderList.append(
-                        [code, tempSearchDate.strftime('%Y-%m-%d %H:%M:%S'), action, totalTradeSize, tempPrice])
+                        [code, tempSearchDate.strftime('%Y-%m-%d %H:%M:%S'), action, totalTradeSize, QntPer, tempPrice, Equity, type])
                 totalTradeSize = 0
             else:
                 totalTradeSize -= tradableVol
-                orderList.append([code, tempSearchDate.strftime('%Y-%m-%d %H:%M:%S'), action, tradableVol, tempPrice])
+                orderList.append([code, tempSearchDate.strftime('%Y-%m-%d %H:%M:%S'), action, totalTradeSize, QntPer, tempPrice, Equity, type])
             loopIndex += 1
             if loopIndex >= timeslotSize:
                 loopIndex = 0
@@ -201,12 +203,8 @@ class OrderManager:
         historyDays = 7
 
         # analysis the signal
-        code = signal[0]
-        sDate = signal[1]
-        action = signal[2]
-        expectPrice = signal[3]
-        totalTradeSize = signal[4]
-        type = signal[5]
+        code, sDate, action, totalTradeSize, QntPer, expectPrice, Equity, type = signal
+
 
         # setup the search start data and end date for searching the historical data
         searchSDate = sDate - datetime.timedelta(days=historyDays + 1)
@@ -221,6 +219,7 @@ class OrderManager:
         timeslotPrice = {}
         timeslotCounts = {}
         timeslotAvgPrice = {}
+        timeslotVolumes = {}
 
         # find out the total past 7 days closing price for each time interval
         for row in dataSet.iterrows():
@@ -241,15 +240,17 @@ class OrderManager:
             timeslotAvgPrice[timeslot] = timeslotPrice[timeslot] / timeslotCounts[timeslot]
             totalTimeslotAvgPrice += timeslotPrice[timeslot] / timeslotCounts[timeslot]
 
-        order_size=totalTradeSize/timeslotCounts
+        print totalTradeSize
+        print timeslotCounts
+        order_size = totalTradeSize / timeslotCounts
         order=[]
 		
         while totalTradeSize > 0:
         	if totalTradeSize>=order_size:
-				order.append([code,sDate,action,totalTimeslotAvgPrice,order_size])
+				order.append([code, sDate, action, order_size, QntPer, totalTimeslotAvgPrice, Equity, type])
 				totalTradeSize-=order_size
         	else:
-				order.append([code,sDate,action,totalTimeslotAvgPrice,totalTradeSize])
+				order.append([code, sDate, action, totalTradeSize, QntPer, totalTimeslotAvgPrice, Equity, type])
 				totalTradeSize=0
         return order
 
@@ -261,15 +262,16 @@ class OrderManager:
         participationRatio = 0.1
         # analysis the signal
         # signal = [Code, Time, Action, Qnt, QntPer, Price, Equity, Strategy]
+        code, sDate, action, totalTradeSize, QntPer, expectPrice, Equity, type = signal
         
-        code = signal[0]
-        sDate = signal[1]
-        action = signal[2]
-        totalTradeSize = signal[3]
-        #percentageQuantity = signal[4]
-        price = signal[5]
-        #equity = signal[6]
-        #strategy = signal[7]
+        # code = signal[0]
+        # sDate = signal[1]
+        # action = signal[2]
+        # totalTradeSize = signal[3]
+        # #percentageQuantity = signal[4]
+        # price = signal[5]
+        # #equity = signal[6]
+        # #strategy = signal[7]
         
         # setup the data source and start to search
         dt = DataManager()
@@ -277,8 +279,8 @@ class OrderManager:
         #dataSet = dt.getInterval(searchSDate, searchEDate)
         tempSearchDate = sDate
         dataSet = dt.getInterval(tempSearchDate, tempSearchDate)
-        #stimeStr = str(sDate.hour) + ':' + str(sDate.minute) + ':' + str(sDate.second)
-        #sTimeslot = datetime.datetime.strptime(stimeStr, "%H:%M:%S").time()
+        stimeStr = str(sDate.hour) + ':' + str(sDate.minute) + ':' + str(sDate.second)
+        sTimeslot = datetime.datetime.strptime(stimeStr, "%H:%M:%S").time()
         curTimeslot = sTimeslot
         
         # setup the order List
@@ -304,11 +306,11 @@ class OrderManager:
             tradableVol = participationRatio * tempVolume
             
             if (totalTradeSize - tradableVol < 0):
-                orderList.append([code, tempSearchDate.strftime('%Y-%m-%d %H:%M:%S'), action, totalTradeSize, tempPrice])
+                orderList.append([code, tempSearchDate.strftime('%Y-%m-%d %H:%M:%S'), action, totalTradeSize, QntPer, tempPrice, Equity, type])
                 totalTradeSize = 0
             else:
                 totalTradeSize -= tradableVol
-                orderList.append([code, tempSearchDate.strftime('%Y-%m-%d %H:%M:%S'), action, tradableVol, tempPrice])
+                orderList.append([code, tempSearchDate.strftime('%Y-%m-%d %H:%M:%S'), action, tradableVol, QntPer, tempPrice, Equity, type])
             
             curTimeslot = tempTime + datetime.timedelta(minutes=1)
             
@@ -388,8 +390,6 @@ class OrderManager:
             eachSignal = [Code, Time, Action, remainQnt, remainQntPer,Price,Equity, Strategy]
             realOrder.append(eachSignal)
             return realOrder
-
-        return [signal]
 
     def orderDefault(self, signal):
 

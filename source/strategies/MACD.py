@@ -87,8 +87,8 @@ class MACD(Strategy):
 
         rect = fig.patch
         rect.set_facecolor('#1B2631')
-        plot1 = plt.subplot(gs[0:12, :])
-        plot2 = plt.subplot(gs[13:20, :])
+        plot1 = plt.subplot(gs[0:20, :])
+        # plot2 = plt.subplot(gs[13:20, :])
         # plot3 = plt.subplot(gs[16:20, :])
 
         longSignals = sig[sig['Action'] == 'Long']
@@ -107,6 +107,9 @@ class MACD(Strategy):
         scline      = plot1.plot(sellToCoverSignals['Time'], sellToCoverSignals['Price'], 'v', markersize=markerSize)
 
         # Set every line
+        plt.title("MACD Stochastic", color='white', fontsize=20)
+        plt.xlabel("Time", color='white')
+        plt.ylabel("Price", color='white')
         plt.setp(longline, color='#E74C3C', markeredgecolor='#E74C3C')
         plt.setp(bcline, color='#E74C3C', markeredgecolor='#E74C3C')
         plt.setp(shortline, color='#27AE60', markeredgecolor='#27AE60')
@@ -129,19 +132,19 @@ class MACD(Strategy):
         plot1.spines['right'].set_color('white')
 
 
-        ### Plot 2
-        bar1 = plot2.plot(df['Date'], macdhist, color='#F39C12')
-        plot2.plot(df['Date'], macd, linewidth=2)
-        plot2.plot(df['Date'], macdsignal, linewidth=2)
-
-        plot2.set_axis_bgcolor('#1B2631')
-        plot2.tick_params(axis='x', colors='white')
-        plot2.tick_params(axis='y', colors='white')
-        plot2.spines['bottom'].set_color('white')
-        plot2.spines['left'].set_color('white')
-        plot2.spines['top'].set_color('white')
-        plot2.spines['right'].set_color('white')
-        plot2.xaxis.set_ticklabels([])
+        # ### Plot 2
+        # bar1 = plot2.plot(df['Date'], macdhist, color='#F39C12')
+        # plot2.plot(df['Date'], macd, linewidth=2)
+        # plot2.plot(df['Date'], macdsignal, linewidth=2)
+        #
+        # plot2.set_axis_bgcolor('#1B2631')
+        # plot2.tick_params(axis='x', colors='white')
+        # plot2.tick_params(axis='y', colors='white')
+        # plot2.spines['bottom'].set_color('white')
+        # plot2.spines['left'].set_color('white')
+        # plot2.spines['top'].set_color('white')
+        # plot2.spines['right'].set_color('white')
+        # plot2.xaxis.set_ticklabels([])
 
 
         plt.savefig("strategies/image/MACD.png", facecolor='#17202A', edgecolor=None)
