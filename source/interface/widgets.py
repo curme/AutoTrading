@@ -4,7 +4,7 @@ from PyQt5.QtGui import QColor, QIcon, QFont, QPalette
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QAction, qApp, QTabWidget, 
     QHBoxLayout, QVBoxLayout, QLabel, QToolBar, QToolButton, QTextEdit,
     QScrollArea, QPushButton, QDesktopWidget, QComboBox, QGridLayout, QCheckBox,
-    QLineEdit, QRadioButton)
+    QLineEdit, QRadioButton, QScrollArea)
 
 import re
 import time
@@ -26,6 +26,7 @@ class MainWindow(QMainWindow):
         self.initMenuBar()
         self.initMainBoard()
         self.techAnPage()
+        #self.trdHisPage()
 
         # make window in center point
         self.setFixedSize(1000, 700)
@@ -124,7 +125,7 @@ class MainWindow(QMainWindow):
             pageMainVerticalBox = QVBoxLayout()
             pageMainVerticalBox.setContentsMargins(0, 5, 0, 0)
 
-            self.pageTechAnTitleLabel = QLabel("Technical Analysis")
+            self.pageTechAnTitleLabel = QLabel("Technical Analysis", page)
             self.pageTechAnTitleLabel.setFixedSize(860, 25)
             self.pageTechAnTitleLabel.setStyleSheet(self.pageTitleQSS)
             pageMainVerticalBox.addWidget(self.pageTechAnTitleLabel)
@@ -185,12 +186,12 @@ class MainWindow(QMainWindow):
             self.pageTechAnStrategyCheckBoxMACD         = QCheckBox("  MACD")
             self.pageTechAnStrategyCheckBoxBreakoutsSwing=QCheckBox("  Breakouts Swing")
             self.pageTechAnStrategyCheckBoxOscillator313= QCheckBox("  Oscillator3 13")
-            self.pageTechAnStrategyCheckBoxACOscillator.setChecked(True)
-            self.pageTechAnStrategyCheckBoxCCICorrection.setChecked(True)
-            self.pageTechAnStrategyCheckBoxDMRSIADX.setChecked(True)
+            self.pageTechAnStrategyCheckBoxACOscillator.setChecked(False)
+            self.pageTechAnStrategyCheckBoxCCICorrection.setChecked(False)
+            self.pageTechAnStrategyCheckBoxDMRSIADX.setChecked(False)
             self.pageTechAnStrategyCheckBoxMACD.setChecked(True)
-            self.pageTechAnStrategyCheckBoxBreakoutsSwing.setChecked(True)
-            self.pageTechAnStrategyCheckBoxOscillator313.setChecked(True)
+            self.pageTechAnStrategyCheckBoxBreakoutsSwing.setChecked(False)
+            self.pageTechAnStrategyCheckBoxOscillator313.setChecked(False)
             strategiesGrid.addWidget(self.pageTechAnStrategyCheckBoxACOscillator, *(1, 1))
             strategiesGrid.addWidget(self.pageTechAnStrategyCheckBoxCCICorrection, *(1, 2))
             strategiesGrid.addWidget(self.pageTechAnStrategyCheckBoxDMRSIADX, *(1, 3))
@@ -588,15 +589,84 @@ class MainWindow(QMainWindow):
 
         if self.pagesStatus[ci] == 0:
 
-            pageMainVerticalBox = QVBoxLayout(page)
-            pageMainVerticalBox.setContentsMargins(0, 5, 0, 0)
+            if not page.layout() == None:
+                while page.layout().count() > 0:
+                    page.layout().takeAt(0).widget().setParent(None)
 
-            titleLabel = QLabel("Trade History", page)
-            titleLabel.setFixedSize(860, 25)
-            titleLabel.setStyleSheet(self.pageTitleQSS)
-            pageMainVerticalBox.addWidget(titleLabel)
+            if page.layout() == None:
+                self.pageTrdHisPageMainVerticalBox = QVBoxLayout()
+                self.pageTrdHisPageMainVerticalBox.setContentsMargins(0, 5, 0, 0)
+                page.setLayout(self.pageTrdHisPageMainVerticalBox)
 
-            page.setLayout(pageMainVerticalBox)
+            self.pageTrdHisTitleLabel = QLabel("Trade History", page)
+            self.pageTrdHisTitleLabel.setFixedSize(860, 25)
+            self.pageTrdHisTitleLabel.setStyleSheet(self.pageTitleQSS)
+            self.pageTrdHisPageMainVerticalBox.addWidget(self.pageTrdHisTitleLabel)
+
+            tradeHistory = self.ATM.account.queryTradeHistory()
+
+            if not len(tradeHistory) == 0:
+                self.pageTrdHisBookTitles = QWidget(page)
+                self.pageTrdHisBookTitles.setFixedSize(860, 25)
+                self.pageTrdHisBookTitles.setStyleSheet(self.pageSubTitleQSS)
+                titlesHBox = QHBoxLayout()
+                titlesHBox.setContentsMargins(10, 0, 20, 0)
+                code = QLabel("Code")
+                code.setFixedWidth(50)
+                titlesHBox.addWidget(code)
+                time = QLabel("Time")
+                time.setFixedWidth(135)
+                titlesHBox.addWidget(time)
+                titlesHBox.addWidget(QLabel("Action"))
+                titlesHBox.addWidget(QLabel("Qnt"))
+                titlesHBox.addWidget(QLabel("QntPer"))
+                titlesHBox.addWidget(QLabel("Price"))
+                titlesHBox.addWidget(QLabel("PnL"))
+                titlesHBox.addWidget(QLabel("Equity"))
+                strategy = QLabel("Strategy")
+                strategy.setFixedWidth(100)
+                titlesHBox.addWidget(strategy)
+                self.pageTrdHisBookTitles.setLayout(titlesHBox)
+                self.pageTrdHisPageMainVerticalBox.addWidget(self.pageTrdHisBookTitles)
+
+                self.pageTrdHisPageScroll = QScrollArea(page)
+                self.pageTrdHisPageScroll.setWidgetResizable(True)
+                self.pageTrdHisPageScroll.setBackgroundRole(QPalette.NoRole)
+                self.pageTrdHisPageScroll.setStyleSheet("background: transparent")
+                self.pageTrdHisPageScroll.setFixedSize(860, 600)
+                self.scrollContentsWidget = QWidget(page)
+                scrollContentVBox = QVBoxLayout()
+                scrollContentVBox.setContentsMargins(0, 0, 0, 0)
+                for i in xrange(1, len(tradeHistory)):
+                    widget = QWidget()
+                    widget.setFixedHeight(15)
+                    widget.setStyleSheet("color:#ffffff")
+                    hbox   = QHBoxLayout()
+                    hbox.setContentsMargins(20, 0, 10, 0)
+                    code = QLabel(str(tradeHistory.ix[i]["Code"])); code.setFixedWidth(50); hbox.addWidget(code);
+                    time = QLabel(str(tradeHistory.ix[i]["Time"])); time.setFixedWidth(135); hbox.addWidget(time);
+                    hbox.addWidget(QLabel(tradeHistory.ix[i]["Action"]))
+                    hbox.addWidget(QLabel(str(tradeHistory.ix[i]["Qnt"])))
+                    hbox.addWidget(QLabel(str(round(tradeHistory.ix[i]["QntPer"], 9))))
+                    hbox.addWidget(QLabel(str(round(tradeHistory.ix[i]["Price"]))))
+                    pnl = QLabel();
+                    if not tradeHistory.ix[i]["PnL"] == "": pnl = QLabel(str(round(float(tradeHistory.ix[i]["PnL"]))));
+                    hbox.addWidget(pnl)
+                    hbox.addWidget(QLabel(str(round(tradeHistory.ix[i]["Equity"]))))
+                    strategy = QLabel(tradeHistory.ix[i]["Strategy"]); strategy.setFixedWidth(100); hbox.addWidget(strategy);
+                    widget.setLayout(hbox)
+                    scrollContentVBox.addWidget(widget)
+                self.scrollContentsWidget.setLayout(scrollContentVBox)
+                self.pageTrdHisPageScroll.setWidget(self.scrollContentsWidget)
+                self.pageTrdHisPageMainVerticalBox.addWidget(self.pageTrdHisPageScroll)
+
+            else:
+                widget = QLabel("No data.")
+                widget.setFixedSize(860, 550)
+                widget.setStyleSheet(self.noDataLabelQSS)
+                widget.setAlignment(Qt.AlignCenter)
+                self.pageTrdHisPageMainVerticalBox.addWidget(widget)
+
             self.pagesStatus[ci] = 1
 
         page.show()
@@ -642,7 +712,8 @@ class MainWindow(QMainWindow):
                 "border-radius:1px}" +
             "QLineEdit:focus {" +
                 "border-radius:1px;}" +
-            "QRadioButton {color: #ffffff}"
+            "QRadioButton {color: #ffffff}" +
+            "QScrollArea {border:0px; background:transparent}"
         )
 
         self.mainBoardQSS       = "padding:0px; background:qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #203138, stop: 1.0 #000000);"
@@ -656,7 +727,8 @@ class MainWindow(QMainWindow):
         self.lineEditQSS        = "background:qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #eeeeee, stop: 1.0 #dddddd);border: 0px; padding-left:5px; font-family:'ArialRegular'; font-weight:20; font-size: 14px"
         self.launchWdgtReadyQSS = "background:qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #004900, stop: 1.0 #033502);border: 0px; color:#ffffff"
         self.launchWdgtProcesQSS= "background:qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #006602, stop: 1.0 #007b03);border: 0px; color:#ffffff"
-
+        self.tableTitleQSS      = "padding-left:5px; background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #495d76, stop: 1.0 #1f4e7c); color: #dddddd; font-family: 'ArialRegular'; font-weight:20; font-size: 14px"
+        self.noDataLabelQSS     = "color: #ffffff; font-family: ArialRegular; font-weight: 20; font-size: 14px"
         self.pageTitleFont  = QFont('ArialRegular')
         self.titleFont      = QFont('ArialRegular')
         self.contentFont    = QFont('ArialRegular')

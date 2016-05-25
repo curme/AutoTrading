@@ -58,7 +58,7 @@ class AutoTradeManager:
         self.threadLock = "on"
 
         # set interface processing
-        self.mainWindow.pageTechAnLaunchProcess
+        self.mainWindow.pageTechAnLaunchProcess()
 
         # set system selected strategies
         self.strategies.setStrategies(investmentStrategies)
