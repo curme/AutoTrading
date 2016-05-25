@@ -89,8 +89,8 @@ class oscillator3_13(Strategy):
 
         """ PLOT """
         fig = plt.figure(1)
-        fig.set_figheight(10)
-        fig.set_figwidth(26)
+        fig.set_figheight(6)
+        fig.set_figwidth(16)
 
         gs = gridspec.GridSpec(20, 10)
 
@@ -128,7 +128,6 @@ class oscillator3_13(Strategy):
         red_patch = mpatches.Patch(color='#E74C3C', label='Long')
         green_patch = mpatches.Patch(color='#27AE60', label='Short')
         plot1.legend(handles=[red_patch, green_patch])
-        plot1.grid(True, color='white')
 
 
         # Axis
