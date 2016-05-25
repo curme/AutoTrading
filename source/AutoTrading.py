@@ -5,7 +5,6 @@ import sys
 
 pd.options.display.max_rows = 999
 pd.set_option('expand_frame_repr', False)
-import datetime
 
 from PyQt5.QtWidgets import QApplication
 from interface.widgets import MainWindow
@@ -37,7 +36,6 @@ class AutoTradeManager:
         self.account.setAccount(self.strategies.strategiesPool, capital, margin)
 
     def run(self, start, end, security, capital=100000000.0, margin=0.3):
-
 
         # reset system before run
         self.resetSystem(capital, margin)
@@ -95,6 +93,50 @@ class AutoTradeManager:
         self.mainWindow.pagesStatus[2] = 0 # auto trading
         self.mainWindow.pagesStatus[3] = 0 # profit and loss
         self.mainWindow.pagesStatus[4] = 0 # trading history
+
+        # release thread lock
+        self.threadLock = "off"
+
+    def launchPairTradingAnalysis(self, capital, investmentStrategies, startTime, endTime, tradeStrategy, positionManagement):
+
+        # check lock
+        if self.threadLock == "on": print "Some thread is still running."; return;
+        self.threadLock = "on"
+
+        # set interface processing
+        self.mainWindow.pagePairTrdLaunchProcess()
+
+        # set system selected strategies
+        self.strategies.setStrategies(investmentStrategies)
+
+        # set account: set position manager for selected strategies
+        self.account.setAccount(self.strategies.strategiesPool, capital)
+
+        # set order manager: orders generate type
+        self.orderAgent.setManager(tradeStrategy)
+
+        # get selected data set
+        dataSets = self.data.getMultipelDataframe("hsi_stocks")
+
+        # use selected strategies analyzing market and generating trading signals
+        signals = self.strategies.monitorMarket(dataSets)
+
+        # execute trading signal
+        self.orderAgent.handleSignals(self.account, signals)
+
+        # print history
+        self.account.printTradeHistory()
+
+        # generate report
+        self.report = pnlCalculator(self.account).run()
+
+        # update interface finished
+        self.mainWindow.pagePairTrdLaunchFinish()
+
+        # set pages auto trading, profit and loss, and trading histort need to updated
+        self.mainWindow.pagesStatus[2] = 0  # auto trading
+        self.mainWindow.pagesStatus[3] = 0  # profit and loss
+        self.mainWindow.pagesStatus[4] = 0  # trading history
 
         # release thread lock
         self.threadLock = "off"

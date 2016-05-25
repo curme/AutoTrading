@@ -35,7 +35,7 @@ class DataManager:
         return data
 
     def getMultipelDataframe(self, name="comdty"):
-        file_paths = self.get_filepaths("../dataManager/data/" + name)
+        file_paths = self.get_filepaths("./dataManager/data/" + name)
         dfs = {}
         for file_path in file_paths:
             df = pd.read_csv(file_path)

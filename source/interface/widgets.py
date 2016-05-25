@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import (QMainWindow, QWidget, QAction, qApp, QTabWidget,
 import re
 import time
 import thread
+import os
 
 from PyQt5.uic.properties import QtCore
 
@@ -28,8 +29,8 @@ class MainWindow(QMainWindow):
         self.initToolBar()
         self.initMenuBar()
         self.initMainBoard()
-        self.techAnPage()
-        #self.trdHisPage()
+        #self.techAnPage()
+        self.pairTrPage()
 
         # make window in center point
         self.setFixedSize(1000, 700)
@@ -189,9 +190,9 @@ class MainWindow(QMainWindow):
             self.pageTechAnStrategyCheckBoxMACD         = QCheckBox("  MACD")
             self.pageTechAnStrategyCheckBoxBreakoutsSwing=QCheckBox("  Breakouts Swing")
             self.pageTechAnStrategyCheckBoxOscillator313= QCheckBox("  Oscillator3 13")
-            self.pageTechAnStrategyCheckBoxACOscillator.setChecked(True)
-            self.pageTechAnStrategyCheckBoxCCICorrection.setChecked(True)
-            self.pageTechAnStrategyCheckBoxDMRSIADX.setChecked(True)
+            self.pageTechAnStrategyCheckBoxACOscillator.setChecked(False)
+            self.pageTechAnStrategyCheckBoxCCICorrection.setChecked(False)
+            self.pageTechAnStrategyCheckBoxDMRSIADX.setChecked(False)
             self.pageTechAnStrategyCheckBoxMACD.setChecked(True)
             self.pageTechAnStrategyCheckBoxBreakoutsSwing.setChecked(False)
             self.pageTechAnStrategyCheckBoxOscillator313.setChecked(False)
@@ -335,7 +336,6 @@ class MainWindow(QMainWindow):
         self.pageTechAnLaunchButton.setStyleSheet(self.launchWdgtReadyQSS)
         self.pageTechAnLaunchButton.setText("Re-Launch")
 
-
     # The pair trading page
     def pairTrPage(self):
 
@@ -391,22 +391,13 @@ class MainWindow(QMainWindow):
             self.pagePairTrSecurityCode.setFixedSize(100, 25)
             self.pagePairTrSecurityCode.setStyleSheet(self.itemNameQSS)
             securityHbox.addWidget(self.pagePairTrSecurityCode)
-            self.pagePairTrSecurityCombo = QComboBox(page)
-            self.pagePairTrSecurityCombo.setEnabled(False)
-            self.pagePairTrSecurityCombo.setFixedSize(300, 25)
-            self.pagePairTrSecurityCombo.setStyleSheet(self.comboQSS)
-            self.pagePairTrSecurityCombo.addItem("HSI")
-            self.pagePairTrSecurityCombo.addItem("HSI-1")
-            self.pagePairTrSecurityCombo.addItem("HSI-2")
-            self.pagePairTrSecurityCombo.addItem("HSI-3")
-            self.pagePairTrSecurityCombo.addItem("HSI-4")
-            self.pagePairTrSecurityCombo.addItem("HSI-10")
-            self.pagePairTrSecurityCombo.addItem("Oil")
-            self.pagePairTrSecurityCombo.addItem("Coal")
-            self.pagePairTrSecurityCombo.addItem("Fe")
-            self.pagePairTrSecurityCombo.addItem("Au")
-            self.pagePairTrSecurityCombo.addItem("Ag")
-            securityHbox.addWidget(self.pagePairTrSecurityCombo)
+            self.pagePairTrSecurities = QTextEdit(page)
+            self.pagePairTrSecurities.setEnabled(False)
+            self.pagePairTrSecurities.setFixedSize(600, 148)
+            securities = ""
+            for item in self.ATM.data.getAssetList("./dataManager/data/hsi_stocks"): securities += item + '   '
+            self.pagePairTrSecurities.setText(securities)
+            securityHbox.addWidget(self.pagePairTrSecurities)
             securityHbox.addStretch(1)
             pageMainVerticalBox.addLayout(securityHbox)
 
@@ -452,16 +443,14 @@ class MainWindow(QMainWindow):
             self.pagePairTrTradeStrateWidget.setFixedSize(700, 40)
             tradeStratGrid = QGridLayout()
             tradeStratGrid.setContentsMargins(30, 5, 0, 5)
-            self.pagePairTrTStrRadioButtonSimple = QRadioButton("  Simple")
-            self.pagePairTrTStrRadioButtonSimple.setChecked(True)
-            self.pageTechAnTStrRadioButtonVWAP = QRadioButton("  VWAP")
-            self.pageTechAnTStrRadioButtonVWAP.setCheckable(False)
-            self.pageTechAnTStrRadioButtonTWAP = QRadioButton("  TWAP")
-            self.pageTechAnTStrRadioButtonTWAP.setChecked(True)
-            self.pageTechAnTStrRadioButtonNONE = QRadioButton("  NONE")
-            tradeStratGrid.addWidget(self.pageTechAnTStrRadioButtonVWAP, *(1, 1))
-            tradeStratGrid.addWidget(self.pageTechAnTStrRadioButtonTWAP, *(1, 2))
-            tradeStratGrid.addWidget(self.pageTechAnTStrRadioButtonNONE, *(1, 3))
+            self.pagePairTrTStrRadioButtonVWAP = QRadioButton("  VWAP")
+            self.pagePairTrTStrRadioButtonVWAP.setCheckable(False)
+            self.pagePairTrTStrRadioButtonTWAP = QRadioButton("  TWAP")
+            self.pagePairTrTStrRadioButtonTWAP.setChecked(True)
+            self.pagePairTrTStrRadioButtonNONE = QRadioButton("  NONE")
+            tradeStratGrid.addWidget(self.pagePairTrTStrRadioButtonVWAP, *(1, 1))
+            tradeStratGrid.addWidget(self.pagePairTrTStrRadioButtonTWAP, *(1, 2))
+            tradeStratGrid.addWidget(self.pagePairTrTStrRadioButtonNONE, *(1, 3))
             tradeStratGrid.addWidget(QLabel(), *(1, 4))
             tradeStratGrid.addWidget(QLabel(), *(1, 5))
             self.pagePairTrTradeStrateWidget.setLayout(tradeStratGrid)
@@ -487,13 +476,14 @@ class MainWindow(QMainWindow):
             pageMainVerticalBox.addWidget(self.pagePairTrPManageMthdWidget)
 
             space = QWidget()
-            space.setFixedSize(0, 123)
+            space.setFixedSize(0, 0)
             pageMainVerticalBox.addWidget(space)
 
             self.pagePairTrLaunchButton = QPushButton("Launch")
             self.pagePairTrLaunchButton.setFont(self.contentFont)
             self.pagePairTrLaunchButton.setFixedSize(860, 40)
             self.pagePairTrLaunchButton.setStyleSheet(self.launchWdgtReadyQSS)
+            self.pagePairTrLaunchButton.clicked.connect(self.pagePairTrdLaunch)
             pageMainVerticalBox.addWidget(self.pagePairTrLaunchButton)
 
             page.setLayout(pageMainVerticalBox)
@@ -501,6 +491,34 @@ class MainWindow(QMainWindow):
             self.pagesStatus[ci] = 1
 
         page.show()
+
+    def pagePairTrdLaunch(self):
+
+        capital = int("".join(re.split("\$| |,", self.pagePairTrCapitalEdit.text())))
+
+        investmentStrategies = ["pairstrading", ]
+
+        startTime = self.pagePairTrStartTimeEdit.text()
+        endTime = self.pagePairTrEndTimeEdit.text()
+
+        tradeStrategy = None
+        if self.pagePairTrTStrRadioButtonVWAP.isChecked(): tradeStrategy = "VWAP"
+        if self.pagePairTrTStrRadioButtonTWAP.isChecked(): tradeStrategy = "TWAP"
+        if self.pagePairTrTStrRadioButtonNONE.isChecked(): tradeStrategy = "Default"
+
+        positionManagement = None
+        if self.pagePairTrPMtdRadioButtonFixedFraction.isChecked(): positionManagement = "FixedFraction"
+        if self.pagePairTrPMtdRadioButtonMaximDrawDown.isChecked(): positionManagement = "MaximumDrawDown"
+
+        thread.start_new_thread(self.ATM.launchPairTradingAnalysis, (capital, investmentStrategies, startTime, endTime, tradeStrategy, positionManagement))
+
+    def pagePairTrdLaunchProcess(self):
+        self.pagePairTrLaunchButton.setStyleSheet(self.launchWdgtProcesQSS)
+        self.pagePairTrLaunchButton.setText("Processing")
+
+    def pagePairTrdLaunchFinish(self):
+        self.pagePairTrLaunchButton.setStyleSheet(self.launchWdgtReadyQSS)
+        self.pagePairTrLaunchButton.setText("Re-Launch")
 
     def atoTrdPage(self):
 
@@ -531,7 +549,33 @@ class MainWindow(QMainWindow):
 
             pnlReport = self.ATM.report
             if not len(pnlReport) == 0:
-                pass
+                pageScroll = QScrollArea(page)
+                pageScroll.setWidgetResizable(True)
+                pageScroll.setBackgroundRole(QPalette.NoRole)
+                pageScroll.setStyleSheet("background: transparent")
+                pageScroll.setFixedSize(860, 860)
+                scrollContentsWidget = QWidget(page)
+                scrollContentVBox = QVBoxLayout()
+                scrollContentVBox.setAlignment(Qt.AlignTop)
+                scrollContentVBox.setContentsMargins(0, 0, 0, 0)
+
+                path = "./strategies/image/"
+
+                for file in os.listdir(path):
+                    if file.endswith(".png"):
+                        widget = QWidget()
+                        widget.setFixedHeight(600)
+                        hbox = QHBoxLayout()
+                        lbl = QLabel()
+                        pixmap = QPixmap(path + file)
+                        scaled_pixmap = pixmap.scaled(860, 860, Qt.KeepAspectRatio)
+                        lbl.setPixmap(scaled_pixmap)
+                        hbox.addWidget(lbl)
+                        widget.setLayout(hbox)
+                        scrollContentVBox.addWidget(widget)
+                scrollContentsWidget.setLayout(scrollContentVBox)
+                pageScroll.setWidget(scrollContentsWidget)
+                self.pageAutoTrdPageMainVerticalBox.addWidget(pageScroll)
             else:
                 widget = QLabel("No Data.")
                 widget.setFixedSize(860, 550)
@@ -674,7 +718,7 @@ class MainWindow(QMainWindow):
                 titlesHBox = QHBoxLayout()
                 titlesHBox.setContentsMargins(10, 0, 20, 0)
                 code = QLabel("Code")
-                code.setFixedWidth(50)
+                code.setFixedWidth(100)
                 titlesHBox.addWidget(code)
                 time = QLabel("Time")
                 time.setFixedWidth(145)
@@ -683,7 +727,7 @@ class MainWindow(QMainWindow):
                 qnt = QLabel("Qnt")
                 qnt.setFixedWidth(50)
                 titlesHBox.addWidget(qnt)
-                titlesHBox.addWidget(QLabel("Occupy(%)"))
+                titlesHBox.addWidget(QLabel("Occupy"))
                 titlesHBox.addWidget(QLabel("Price"))
                 titlesHBox.addWidget(QLabel("PnL"))
                 titlesHBox.addWidget(QLabel("Equity"))
@@ -701,6 +745,7 @@ class MainWindow(QMainWindow):
                 self.scrollContentsWidget = QWidget(page)
                 scrollContentVBox = QVBoxLayout()
                 scrollContentVBox.setContentsMargins(0, 0, 0, 0)
+                scrollContentVBox.setAlignment(Qt.AlignTop)
                 for i in xrange(0, len(tradeHistory)):
                     widget = QWidget()
                     widget.setFixedHeight(15)
@@ -710,13 +755,13 @@ class MainWindow(QMainWindow):
                     if tradeHistory.ix[i]["Action"] == "BuyToCover" : widget.setStyleSheet("color:#fa2020")
                     hbox   = QHBoxLayout()
                     hbox.setContentsMargins(20, 0, 10, 0)
-                    code = QLabel(str(tradeHistory.ix[i]["Code"])); code.setFixedWidth(50); hbox.addWidget(code);
+                    code = QLabel(str(tradeHistory.ix[i]["Code"])); code.setFixedWidth(100); hbox.addWidget(code);
                     time = QLabel(str(tradeHistory.ix[i]["Time"])); time.setFixedWidth(145); hbox.addWidget(time);
                     hbox.addWidget(QLabel(tradeHistory.ix[i]["Action"]))
                     qnt = QLabel(str(tradeHistory.ix[i]["Qnt"])); qnt.setFixedWidth(50); hbox.addWidget(qnt);
-                    hbox.addWidget(QLabel(str("{0:.2f}".format(tradeHistory.ix[i]["QntPer"] * 100))))
+                    hbox.addWidget(QLabel(str("{0:.2f}".format(tradeHistory.ix[i]["QntPer"] * 100))+"%"))
                     hbox.addWidget(QLabel(str(round(tradeHistory.ix[i]["Price"]))))
-                    pnl = QLabel();
+                    pnl = QLabel()
                     if not tradeHistory.ix[i]["PnL"] == "": pnl = QLabel(str(round(float(tradeHistory.ix[i]["PnL"]))));
                     hbox.addWidget(pnl)
                     hbox.addWidget(QLabel(str(round(tradeHistory.ix[i]["Equity"]))))
@@ -781,7 +826,8 @@ class MainWindow(QMainWindow):
             "QLineEdit:focus {" +
                 "border-radius:1px;}" +
             "QRadioButton {color: #ffffff}" +
-            "QScrollArea {border:0px; background:transparent}"
+            "QScrollArea {border:0px; background:transparent}" +
+            "QTextEdit {padding-left: 5px; border: 0px; font-family: 'ArialRegular'; font-weight:20; font-size:14px; background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ec2f4b, stop: 1.0 #85030f);}"
         )
 
         self.mainBoardQSS       = "padding:0px; background:qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #203138, stop: 1.0 #000000);"
