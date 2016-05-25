@@ -88,7 +88,7 @@ class ACOscillator(Strategy):
         """ Plot """
         fig = plt.figure(1)
         fig.set_figheight(10)
-        fig.set_figwidth(15)
+        fig.set_figwidth(26)
 
         gs = gridspec.GridSpec(20, 10)
 

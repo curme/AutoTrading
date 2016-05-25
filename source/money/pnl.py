@@ -64,16 +64,16 @@ class pnlCalculator:
     def Getmdd(self):
         self.mdd = []
         for s in self.strategy:
-            pnllist = []
+            valuelist = [self.capital]
             for i in self.tradebook.index:
                 if self.tradebook.loc[i, 'Strategy'] == s:
                     if self.tradebook.loc[i, 'Action'] == "BuyToCover" or self.tradebook.loc[
                         i, 'Action'] == "SellToCover":
                         if self.tradebook.loc[i, 'Qnt'] != 0:
-                            pnllist.append(float(self.tradebook.loc[i, 'PnL']))
-
-            self.mdd.append(maxDrawDown(pd.DataFrame(pnllist, columns=["Close"])))
-            # print "mdd: ", self.mdd
+                            valuelist.append(self.tradebook.loc[i, 'Equity'])
+            minvalue = min(valuelist)
+            maxvalue = max([valuelist[j] for j in xrange(len(valuelist)) if j <= valuelist.index(minvalue)])
+            self.mdd.append((minvalue - maxvalue) / maxvalue)
 
     def run(self):
         self.departStrategy()

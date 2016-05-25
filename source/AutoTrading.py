@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import sys
 
@@ -35,6 +37,7 @@ class AutoTradeManager:
         self.account.setAccount(self.strategies.strategiesPool, capital, margin)
 
     def run(self, start, end, security, capital=100000000.0, margin=0.3):
+
 
         # reset system before run
         self.resetSystem(capital, margin)

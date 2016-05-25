@@ -5,7 +5,7 @@ import pandas as pd
 import os, sys
 
 # import xlrd
-DATA_PATH = "./dataManager"
+DATA_PATH = "./dataManager/data/"
 
 
 class DataManager:
@@ -17,12 +17,11 @@ class DataManager:
     def getAssetList(self, path=DATA_PATH):
         subdirectories = os.listdir(path)
         name_list = []
-        for subDir in subdirectories:
-            file_paths = self.get_filepaths(path+'/'+subDir)
-            for file_path in file_paths:
-                file_name = file_path.split("/")
-                asset = file_name[-1].split('.csv')
-                name_list.append(asset[0])
+        for file_path in subdirectories:
+            file_name = file_path.split("/")
+            asset = file_name[-1].split('.csv')
+            name_list.append(asset[0])
+
         return name_list
 
     def getCSVData(self, name="hsi_futures_jan"):

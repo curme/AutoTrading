@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QColor, QIcon, QFont, QPalette
+from PyQt5.QtGui import QColor, QIcon, QFont, QPalette, QPixmap
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QAction, qApp, QTabWidget, 
     QHBoxLayout, QVBoxLayout, QLabel, QToolBar, QToolButton, QTextEdit,
     QScrollArea, QPushButton, QDesktopWidget, QComboBox, QGridLayout, QCheckBox,
@@ -169,7 +169,7 @@ class MainWindow(QMainWindow):
             self.pageTechAnSecurityCombo.setFixedSize(300, 25)
             self.pageTechAnSecurityCombo.setStyleSheet(self.comboQSS)
             self.pageTechAnSecurityCombo.addItem("hsi_futures_jan")
-            for item in self.ATM.data.getAssetList(): self.pageTechAnSecurityCombo.addItem(item)
+            for item in self.ATM.data.getAssetList("./dataManager/data/hsi_futures"): self.pageTechAnSecurityCombo.addItem(item)
             securityHbox.addWidget(self.pageTechAnSecurityCombo)
             securityHbox.addStretch(1)
             pageMainVerticalBox.addLayout(securityHbox)
@@ -515,23 +515,30 @@ class MainWindow(QMainWindow):
 
         if self.pagesStatus[ci] == 0:
 
-            pageMainVerticalBox = QVBoxLayout(page)
-            pageMainVerticalBox.setContentsMargins(0, 5, 0, 0)
+            if not page.layout() == None:
+                while page.layout().count() > 0:
+                    page.layout().takeAt(0).widget().setParent(None)
 
-            titleLabel = QLabel("Auto Trade", page)
-            titleLabel.setFixedSize(860, 25)
-            titleLabel.setStyleSheet(self.pageTitleQSS)
-            pageMainVerticalBox.addWidget(titleLabel)
+            if page.layout() == None:
+                self.pageAutoTrdPageMainVerticalBox = QVBoxLayout()
+                self.pageAutoTrdPageMainVerticalBox.setContentsMargins(0, 5, 0, 0)
+                page.setLayout(self.pageAutoTrdPageMainVerticalBox)
 
-            widget = QLabel("No Data.")
-            widget.setFixedSize(860, 550)
-            widget.setStyleSheet(self.noDataLabelQSS)
-            widget.setAlignment(Qt.AlignCenter)
-            pageMainVerticalBox.addWidget(widget)
+            self.pageAutoTrdTitleLabel = QLabel("Auto Trade", page)
+            self.pageAutoTrdTitleLabel.setFixedSize(860, 25)
+            self.pageAutoTrdTitleLabel.setStyleSheet(self.pageTitleQSS)
+            self.pageAutoTrdPageMainVerticalBox.addWidget(self.pageAutoTrdTitleLabel)
 
-            page.setLayout(pageMainVerticalBox)
+            pnlReport = self.ATM.report
+            if not len(pnlReport) == 0:
+                pass
+            else:
+                widget = QLabel("No Data.")
+                widget.setFixedSize(860, 550)
+                widget.setStyleSheet(self.noDataLabelQSS)
+                widget.setAlignment(Qt.AlignCenter)
+                self.pageAutoTrdPageMainVerticalBox.addWidget(widget)
             self.pagesStatus[ci] = 1
-
         page.show()
 
     def trdPnlPage(self):
@@ -583,6 +590,7 @@ class MainWindow(QMainWindow):
                 self.pageTrdHisBookTitles.setLayout(titlesHBox)
                 self.pageTrdPnlPageMainVerticalBox.addWidget(self.pageTrdHisBookTitles)
 
+
                 self.pageTrdHisPageScroll = QScrollArea(page)
                 self.pageTrdHisPageScroll.setWidgetResizable(True)
                 self.pageTrdHisPageScroll.setBackgroundRole(QPalette.NoRole)
@@ -610,7 +618,7 @@ class MainWindow(QMainWindow):
                     hbox.addWidget(areturn)
                     hbox.addWidget(QLabel(str("{0:.4f}".format(pnlReport.ix[i]["Volatility"]))))
                     hbox.addWidget(QLabel(str("{0:.4f}".format(pnlReport.ix[i]["Sharpe Ratio"]))))
-                    mdd = QLabel(str("{0:.2f}".format(pnlReport.ix[i]["MDD"])))
+                    mdd = QLabel(str("{0:.6f}".format(pnlReport.ix[i]["MDD"])))
                     mdd.setFixedWidth(155)
                     hbox.addWidget(mdd)
                     widget.setLayout(hbox)
