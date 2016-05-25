@@ -29,8 +29,8 @@ class MainWindow(QMainWindow):
         self.initToolBar()
         self.initMenuBar()
         self.initMainBoard()
-        #self.techAnPage()
-        self.pairTrPage()
+        self.techAnPage()
+        #self.pairTrPage()
 
         # make window in center point
         self.setFixedSize(1000, 700)
@@ -93,20 +93,32 @@ class MainWindow(QMainWindow):
         exitAction.setShortcut('Ctrl+Q')
         exitAction.triggered.connect(qApp.quit)
 
-        launchAction = QAction('&Launch', self)
-        launchAction.setShortcut('Ctrl+L')
-        launchAction.triggered.connect(self.execute)
+        techAnAction = QAction('&Technical Analysis', self)
+        techAnAction.setShortcut('Ctrl+T')
+        techAnAction.triggered.connect(self.techAnPage)
+        pairTrAction = QAction('&Pair Trading', self)
+        pairTrAction.setShortcut('Ctrl+P')
+        pairTrAction.triggered.connect(self.pairTrPage)
+        atoTrdAction = QAction('&Monitor', self)
+        atoTrdAction.setShortcut('Ctrl+M')
+        atoTrdAction.triggered.connect(self.atoTrdPage)
+        trdPnlAction = QAction('&Profit And Loss Report', self)
+        trdPnlAction.setShortcut('Ctrl+R')
+        trdPnlAction.triggered.connect(self.trdPnlPage)
+        trdHisAction = QAction('&Trade History', self)
+        trdHisAction.setShortcut('Ctrl+H')
+        trdHisAction.triggered.connect(self.trdHisPage)
 
         menubar = self.menuBar()
         menubar.setNativeMenuBar(False)
         fannsMenu = menubar.addMenu('&App')
         fannsMenu.addAction(exitAction)
-        editMenu = menubar.addMenu('&Func')
-        editMenu.addAction(launchAction)
-
-    def execute(self):
-
-        print 'have a lunch!'
+        naviMenu = menubar.addMenu('&Navigate')
+        naviMenu.addAction(techAnAction)
+        naviMenu.addAction(pairTrAction)
+        naviMenu.addAction(atoTrdAction)
+        naviMenu.addAction(trdPnlAction)
+        naviMenu.addAction(trdHisAction)
 
     # The technical analysis page
     def techAnPage(self):
@@ -526,7 +538,7 @@ class MainWindow(QMainWindow):
             self.toolButtons[pi].setStyleSheet(self.toolButtonHideQSS)
             self.pages[pi].hide()
 
-        print "in auto trade page"
+        print "in monitor page"
         ci = 2
         page = self.pages[ci]
         self.toolButtons[ci].setStyleSheet(self.toolButtonFocusQSS)
@@ -548,41 +560,102 @@ class MainWindow(QMainWindow):
             self.pageAutoTrdPageMainVerticalBox.addWidget(self.pageAutoTrdTitleLabel)
 
             pnlReport = self.ATM.report
-            if not len(pnlReport) == 0:
-                pageScroll = QScrollArea(page)
-                pageScroll.setWidgetResizable(True)
-                pageScroll.setBackgroundRole(QPalette.NoRole)
-                pageScroll.setStyleSheet("background: transparent")
-                pageScroll.setFixedSize(860, 860)
-                scrollContentsWidget = QWidget(page)
+            if not len(self.ATM.strategies.strategiesPool.keys()) == 0:
+                self.pageAtoTrdPageScroll = QScrollArea(page)
+                self.pageAtoTrdPageScroll.setWidgetResizable(True)
+                self.pageAtoTrdPageScroll.setBackgroundRole(QPalette.NoRole)
+                self.pageAtoTrdPageScroll.setStyleSheet("background: transparent")
+                self.pageAtoTrdPageScroll.setFixedSize(860, 635)
+                self.pageAtoTrdScrollContentsWidget = QWidget(page)
                 scrollContentVBox = QVBoxLayout()
                 scrollContentVBox.setAlignment(Qt.AlignTop)
                 scrollContentVBox.setContentsMargins(0, 0, 0, 0)
 
-                path = "./strategies/image/"
+                if not "pairstrading" in self.ATM.strategies.strategiesPool.keys():
+                    self.pageAtoTrdSignalPlotLabel = QLabel("Signals Plots", page)
+                    self.pageAtoTrdSignalPlotLabel.setFixedSize(860, 25)
+                    self.pageAtoTrdSignalPlotLabel.setStyleSheet(self.pageSubTitleQSS)
+                    scrollContentVBox.addWidget(self.pageAtoTrdSignalPlotLabel)
 
+                path = "./strategies/image/"
                 for file in os.listdir(path):
-                    if file.endswith(".png"):
+                    if file.endswith(".png") and file.split('.')[0] in self.ATM.strategies.strategiesPool.keys():
+                        pageAtoTrdSignalPlotStrategyLabel = QLabel(file.split('.')[0], page)
+                        pageAtoTrdSignalPlotStrategyLabel.setFixedSize(860, 25)
+                        pageAtoTrdSignalPlotStrategyLabel.setStyleSheet(self.pageSubSubTitleQSS)
+                        scrollContentVBox.addWidget(pageAtoTrdSignalPlotStrategyLabel)
+
                         widget = QWidget()
-                        widget.setFixedHeight(600)
+                        widget.setFixedHeight(300)
                         hbox = QHBoxLayout()
+                        hbox.setContentsMargins(0, 0, 0, 0)
+                        hbox.setAlignment(Qt.AlignCenter)
                         lbl = QLabel()
                         pixmap = QPixmap(path + file)
-                        scaled_pixmap = pixmap.scaled(860, 860, Qt.KeepAspectRatio)
+                        scaled_pixmap = pixmap.scaled(860, 330, Qt.KeepAspectRatio)
                         lbl.setPixmap(scaled_pixmap)
                         hbox.addWidget(lbl)
                         widget.setLayout(hbox)
                         scrollContentVBox.addWidget(widget)
-                scrollContentsWidget.setLayout(scrollContentVBox)
-                pageScroll.setWidget(scrollContentsWidget)
-                self.pageAutoTrdPageMainVerticalBox.addWidget(pageScroll)
+
+                self.pageAtoTrdAllSignalsLabel = QLabel("All Signals", page)
+                self.pageAtoTrdAllSignalsLabel.setFixedSize(860, 25)
+                self.pageAtoTrdAllSignalsLabel.setStyleSheet(self.pageSubTitleQSS)
+                scrollContentVBox.addWidget(self.pageAtoTrdAllSignalsLabel)
+
+                self.pageAtoTrdAllSignalsTitle = QWidget(page)
+                self.pageAtoTrdAllSignalsTitle.setFixedSize(860, 25)
+                self.pageAtoTrdAllSignalsTitle.setStyleSheet(self.pageSubSubTitleQSS)
+                titlesHBox = QHBoxLayout()
+                titlesHBox.setContentsMargins(10, 0, 20, 0)
+                titlesHBox.addWidget(QLabel("Code"))
+                titlesHBox.addWidget(QLabel("Time"))
+                titlesHBox.addWidget(QLabel("Action"))
+                titlesHBox.addWidget(QLabel("Qnt"))
+                titlesHBox.addWidget(QLabel("Price"))
+                titlesHBox.addWidget(QLabel("Volumn"))
+                titlesHBox.addWidget(QLabel("Strategy"))
+                self.pageAtoTrdAllSignalsTitle.setLayout(titlesHBox)
+                scrollContentVBox.addWidget(self.pageAtoTrdAllSignalsTitle)
+
+                signals = self.ATM.strategies.signals
+                if not len(signals) == 0:
+                    for i in xrange(len(signals)):
+                        widget = QWidget(page)
+                        widget.setFixedHeight(15)
+                        widget.setStyleSheet("color:#ffffff")
+                        signalHBox = QHBoxLayout()
+                        signalHBox.setContentsMargins(20, 0, 10, 0)
+                        signalHBox.addWidget(QLabel(signals.ix[i]["Code"]))
+                        signalHBox.addWidget(QLabel(str(signals.ix[i]["Time"])))
+                        signalHBox.addWidget(QLabel(signals.ix[i]["Action"]))
+                        signalHBox.addWidget(QLabel(str(signals.ix[i]["Qnt"])))
+                        signalHBox.addWidget(QLabel(str(signals.ix[i]["Price"])))
+                        signalHBox.addWidget(QLabel(str(signals.ix[i]["Volume"])))
+                        signalHBox.addWidget(QLabel(signals.ix[i]["Strategy"]))
+                        widget.setLayout(signalHBox)
+                        scrollContentVBox.addWidget(widget)
+
+                else:
+                    widget = QLabel("No Data.")
+                    widget.setFixedSize(860, 550)
+                    widget.setStyleSheet(self.noDataLabelQSS)
+                    widget.setAlignment(Qt.AlignCenter)
+                    scrollContentVBox.addWidget(widget)
+
+                self.pageAtoTrdScrollContentsWidget.setLayout(scrollContentVBox)
+                self.pageAtoTrdPageScroll.setWidget(self.pageAtoTrdScrollContentsWidget)
+                self.pageAutoTrdPageMainVerticalBox.addWidget(self.pageAtoTrdPageScroll)
+
             else:
                 widget = QLabel("No Data.")
                 widget.setFixedSize(860, 550)
                 widget.setStyleSheet(self.noDataLabelQSS)
                 widget.setAlignment(Qt.AlignCenter)
                 self.pageAutoTrdPageMainVerticalBox.addWidget(widget)
+
             self.pagesStatus[ci] = 1
+
         page.show()
 
     def trdPnlPage(self):
@@ -614,6 +687,7 @@ class MainWindow(QMainWindow):
 
             pnlReport = self.ATM.report
             if not len(pnlReport) == 0:
+
                 self.pageTrdHisBookTitles = QWidget(page)
                 self.pageTrdHisBookTitles.setFixedSize(860, 25)
                 self.pageTrdHisBookTitles.setStyleSheet(self.pageSubTitleQSS)
@@ -640,7 +714,7 @@ class MainWindow(QMainWindow):
                 self.pageTrdHisPageScroll.setBackgroundRole(QPalette.NoRole)
                 self.pageTrdHisPageScroll.setStyleSheet("background: transparent")
                 self.pageTrdHisPageScroll.setFixedSize(860, 600)
-                self.scrollContentsWidget = QWidget(page)
+                self.pageTrdHisScrollContentsWidget = QWidget(page)
                 scrollContentVBox = QVBoxLayout()
                 scrollContentVBox.setAlignment(Qt.AlignTop)
                 scrollContentVBox.setContentsMargins(0, 0, 0, 0)
@@ -667,8 +741,8 @@ class MainWindow(QMainWindow):
                     hbox.addWidget(mdd)
                     widget.setLayout(hbox)
                     scrollContentVBox.addWidget(widget)
-                self.scrollContentsWidget.setLayout(scrollContentVBox)
-                self.pageTrdHisPageScroll.setWidget(self.scrollContentsWidget)
+                self.pageTrdHisScrollContentsWidget.setLayout(scrollContentVBox)
+                self.pageTrdHisPageScroll.setWidget(self.pageTrdHisScrollContentsWidget)
                 self.pageTrdPnlPageMainVerticalBox.addWidget(self.pageTrdHisPageScroll)
 
             else:
@@ -742,7 +816,7 @@ class MainWindow(QMainWindow):
                 self.pageTrdHisPageScroll.setBackgroundRole(QPalette.NoRole)
                 self.pageTrdHisPageScroll.setStyleSheet("background: transparent")
                 self.pageTrdHisPageScroll.setFixedSize(860, 600)
-                self.scrollContentsWidget = QWidget(page)
+                self.pageTrdHisScrollContentsWidget = QWidget(page)
                 scrollContentVBox = QVBoxLayout()
                 scrollContentVBox.setContentsMargins(0, 0, 0, 0)
                 scrollContentVBox.setAlignment(Qt.AlignTop)
@@ -768,8 +842,8 @@ class MainWindow(QMainWindow):
                     strategy = QLabel(tradeHistory.ix[i]["Strategy"]); strategy.setFixedWidth(100); hbox.addWidget(strategy);
                     widget.setLayout(hbox)
                     scrollContentVBox.addWidget(widget)
-                self.scrollContentsWidget.setLayout(scrollContentVBox)
-                self.pageTrdHisPageScroll.setWidget(self.scrollContentsWidget)
+                self.pageTrdHisScrollContentsWidget.setLayout(scrollContentVBox)
+                self.pageTrdHisPageScroll.setWidget(self.pageTrdHisScrollContentsWidget)
                 self.pageTrdHisPageMainVerticalBox.addWidget(self.pageTrdHisPageScroll)
 
             else:
@@ -834,6 +908,7 @@ class MainWindow(QMainWindow):
         self.pagesQSS           = "background:none; padding: 0px"
         self.pageTitleQSS       = "padding-left:5px; background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ec2f4b, stop: 1.0 #85030f); color: #ffffff; font-family: 'ArialRegular'; font-weight:20; font-size: 16px"
         self.pageSubTitleQSS    = "padding-left:5px; background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #495d76, stop: 1.0 #1f4e7c); color: #dddddd; font-family: 'ArialRegular'; font-weight:20; font-size: 14px"
+        self.pageSubSubTitleQSS = "padding-left:5px; background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #646464, stop: 1.0 #838683); color: #dddddd; font-family: 'ArialRegular'; font-weight:20; font-size: 14px"
         self.toolButtonHideQSS  = "background:none; font-size: 14px; font-family:'ArialRegular'"
         self.toolButtonFocusQSS = "background:qlineargradient(x1: 0, y1: 1, x2: 0, y2: 0, stop: 0 #ffcb06, stop: 1.0 #ff9c28);border-radius:3px; color:#000000"
         self.itemNameQSS        = "color: #ffffff; font-family: 'ArialRegular'"
