@@ -64,7 +64,7 @@ class MainWindow(QMainWindow):
         self.pairTrButton.setText("Pair Trading")
         self.pairTrButton.setFixedSize(130, 25)
         self.atoTrdButton = QToolButton()
-        self.atoTrdButton.setText("Auto Trade")
+        self.atoTrdButton.setText("Monitor")
         self.atoTrdButton.setFixedSize(130, 25)
         self.trdPnlButton = QToolButton()
         self.trdPnlButton.setText("PnL Report")
@@ -524,7 +524,7 @@ class MainWindow(QMainWindow):
                 self.pageAutoTrdPageMainVerticalBox.setContentsMargins(0, 5, 0, 0)
                 page.setLayout(self.pageAutoTrdPageMainVerticalBox)
 
-            self.pageAutoTrdTitleLabel = QLabel("Auto Trade", page)
+            self.pageAutoTrdTitleLabel = QLabel("Monitor", page)
             self.pageAutoTrdTitleLabel.setFixedSize(860, 25)
             self.pageAutoTrdTitleLabel.setStyleSheet(self.pageTitleQSS)
             self.pageAutoTrdPageMainVerticalBox.addWidget(self.pageAutoTrdTitleLabel)
