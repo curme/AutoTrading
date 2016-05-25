@@ -109,7 +109,7 @@ class oscillator3_13(Strategy):
         ## Plot 1
 
         markerSize = 15
-        priceline   = plot1.plot(df['Date'], df['Close'], '#F39C12')
+        priceline   = plot1.plot(df['Date'], df['Close'], '#F39C12',lw=2)
         longline    = plot1.plot(longSignals['Time'], longSignals['Price'], '^', markersize=markerSize)
         bcline      = plot1.plot(buyToCoverSignals['Time'], buyToCoverSignals['Price'], '^', markersize=markerSize)
         shortline   = plot1.plot(shortSignals['Time'], shortSignals['Price'], 'v', markersize=markerSize)
@@ -139,6 +139,11 @@ class oscillator3_13(Strategy):
         plot1.spines['left'].set_color('white')
         plot1.spines['top'].set_color('white')
         plot1.spines['right'].set_color('white')
+
+        plot1.spines['bottom'].set_linewidth(2)
+        plot1.spines['left'].set_linewidth(2)
+        plot1.spines['top'].set_linewidth(2)
+        plot1.spines['right'].set_linewidth(2)
 
         plt.savefig("strategies/image/oscillator3_13.png", facecolor='#17202A', edgecolor=None)
 

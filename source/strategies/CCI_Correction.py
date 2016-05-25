@@ -141,8 +141,8 @@ class CCI_Correction(Strategy):
 
         """ Plot """
         fig = plt.figure(1)
-        fig.set_figheight(10)
-        fig.set_figwidth(26)
+        fig.set_figheight(6)
+        fig.set_figwidth(16)
 
         gs = gridspec.GridSpec(20, 10)
 
@@ -161,7 +161,7 @@ class CCI_Correction(Strategy):
         ## Plot 1
 
         markerSize = 15
-        priceline   = plot1.plot(df['Date'], df['Close'], '#F39C12')
+        priceline   = plot1.plot(df['Date'], df['Close'], '#F39C12',lw=2)
         longline    = plot1.plot(longSignals['Time'], longSignals['Price'], '^', markersize=markerSize)
         bcline      = plot1.plot(buyToCoverSignals['Time'], buyToCoverSignals['Price'], '^', markersize=markerSize)
         shortline   = plot1.plot(shortSignals['Time'], shortSignals['Price'], 'v', markersize=markerSize)
@@ -180,7 +180,7 @@ class CCI_Correction(Strategy):
         red_patch = mpatches.Patch(color='#E74C3C', label='Long')
         green_patch = mpatches.Patch(color='#27AE60', label='Short')
         plot1.legend(handles=[red_patch, green_patch])
-        plot1.grid(True, color='white')
+
 
 
         # Axis
@@ -191,6 +191,11 @@ class CCI_Correction(Strategy):
         plot1.spines['left'].set_color('white')
         plot1.spines['top'].set_color('white')
         plot1.spines['right'].set_color('white')
+
+        plot1.spines['bottom'].set_linewidth(2)
+        plot1.spines['left'].set_linewidth(2)
+        plot1.spines['top'].set_linewidth(2)
+        plot1.spines['right'].set_linewidth(2)
 
         plt.savefig("strategies/image/CCI_Correction.png", facecolor='#17202A', edgecolor=None)
         plt.close()

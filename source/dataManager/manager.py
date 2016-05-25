@@ -40,6 +40,7 @@ class DataManager:
         for file_path in file_paths:
             df = pd.read_csv(file_path)
             df.columns = ['Date', 'Open', 'High', 'Low', 'Close', 'Volume']
+            df['Date'] = pd.to_datetime(df['Date'], format='%Y-%m-%d %H:%M:%S')
             file_name = file_path.split("/")
             asset = file_name[4].split('.csv')
             dfs[asset[0]] = df

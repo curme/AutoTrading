@@ -4,6 +4,9 @@ from datetime import timedelta
 from source.strategies.strategy import Strategy
 from source.dataManager.manager import DataManager as Data
 from sklearn import datasets, linear_model, preprocessing
+import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 
 class pairstrading(Strategy):
 
@@ -60,6 +63,95 @@ class pairstrading(Strategy):
                 flag = 0
 
         sig = pd.DataFrame(signals, columns=['Code', 'Time', 'Action', 'Qnt', 'Price', 'Volume', 'Strategy'])
+
+        """ PLOT """
+        fig = plt.figure(1)
+        fig.set_figheight(6)
+        fig.set_figwidth(16)
+
+        gs = gridspec.GridSpec(20, 10)
+
+        rect = fig.patch
+        rect.set_facecolor('#1B2631')
+        plot1 = plt.subplot(gs[0:20, :])
+        # plot3 = plt.subplot(gs[16:20, :])
+
+        longSignals = sig[sig['Action'] == 'Long']
+        sellToCoverSignals = sig[sig['Action'] == 'SellToCover']
+        shortSignals = sig[sig['Action'] == 'Short']
+        buyToCoverSignals = sig[sig['Action'] == 'BuyToCover']
+
+
+        ## Plot 1
+
+        markerSize = 15
+        priceline1   = plot1.plot(p1['Date'], p1['Close'], '#F39C12', lw=2)
+        priceline2   = plot1.plot(p2['Date'], p2['Close'], '#F39C12', lw=2)
+        longline1    = plot1.plot(longSignals['Time'], longSignals['Price'], '^', markersize=markerSize)
+        bcline1      = plot1.plot(buyToCoverSignals['Time'], buyToCoverSignals['Price'], '^', markersize=markerSize)
+        shortline1   = plot1.plot(shortSignals['Time'], shortSignals['Price'], 'v', markersize=markerSize)
+        scline1      = plot1.plot(sellToCoverSignals['Time'], sellToCoverSignals['Price'], 'v', markersize=markerSize)
+
+        # priceline2   = plot2.plot(p2['Date'], p2['Close'], '#F39C12', lw=2)
+        # longline2    = plot2.plot(longSignals['Time'], longSignals['Price'], '^', markersize=markerSize)
+        # bcline2      = plot2.plot(buyToCoverSignals['Time'], buyToCoverSignals['Price'], '^', markersize=markerSize)
+        # shortline2   = plot2.plot(shortSignals['Time'], shortSignals['Price'], 'v', markersize=markerSize)
+        # scline2      = plot2.plot(sellToCoverSignals['Time'], sellToCoverSignals['Price'], 'v', markersize=markerSize)
+
+        # Set every line
+        plt.title("Pairs Trading", color='white', fontsize=20)
+        plt.xlabel("Time", color='white')
+        plt.ylabel("Price", color='white')
+        plt.setp(longline1, color='#E74C3C', markeredgecolor='#E74C3C')
+        plt.setp(bcline1, color='#E74C3C', markeredgecolor='#E74C3C')
+        plt.setp(shortline1, color='#27AE60', markeredgecolor='#27AE60')
+        plt.setp(scline1, color='#27AE60', markeredgecolor='#27AE60')
+
+        # plt.setp(longline2, color='#E74C3C', markeredgecolor='#E74C3C')
+        # plt.setp(bcline2, color='#E74C3C', markeredgecolor='#E74C3C')
+        # plt.setp(shortline2, color='#27AE60', markeredgecolor='#27AE60')
+        # plt.setp(scline2, color='#27AE60', markeredgecolor='#27AE60')
+
+        # Legend and grid
+        red_patch = mpatches.Patch(color='#E74C3C', label='Long')
+        green_patch = mpatches.Patch(color='#27AE60', label='Short')
+        plot1.legend(handles=[red_patch, green_patch])
+        # plot1.grid(True, color='white')
+
+
+        # Axis
+        plot1.set_axis_bgcolor('#1B2631')
+        plot1.tick_params(axis='x', colors='white')
+        plot1.tick_params(axis='y', colors='white')
+        plot1.spines['bottom'].set_color('white')
+        plot1.spines['left'].set_color('white')
+        plot1.spines['top'].set_color('white')
+        plot1.spines['right'].set_color('white')
+
+        plot1.spines['bottom'].set_linewidth(2)
+        plot1.spines['left'].set_linewidth(2)
+        plot1.spines['top'].set_linewidth(2)
+        plot1.spines['right'].set_linewidth(2)
+
+
+        # ### Plot 2
+        # bar1 = plot2.plot(df['Date'], macdhist, color='#F39C12')
+        # plot2.plot(df['Date'], macd, linewidth=2)
+        # plot2.plot(df['Date'], macdsignal, linewidth=2)
+        #
+        # plot2.set_axis_bgcolor('#1B2631')
+        # plot2.tick_params(axis='x', colors='white')
+        # plot2.tick_params(axis='y', colors='white')
+        # plot2.spines['bottom'].set_color('white')
+        # plot2.spines['left'].set_color('white')
+        # plot2.spines['top'].set_color('white')
+        # plot2.spines['right'].set_color('white')
+        # plot2.xaxis.set_ticklabels([])
+
+
+        plt.savefig("strategies/image/pairtrading.png", facecolor='#17202A', edgecolor=None)
+        plt.close()
+
 
         return sig
 
