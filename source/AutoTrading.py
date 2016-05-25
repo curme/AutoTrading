@@ -24,6 +24,7 @@ class AutoTradeManager:
         self.orderAgent = OrderManager()
         self.mainWindow = MainWindow(self)
         self.threadLock = "off"
+        self.report     = ""
 
         sys.exit(self.app.exec_())
 
@@ -82,8 +83,7 @@ class AutoTradeManager:
         self.account.printTradeHistory()
 
         # generate report
-        self.report = pnlCalculator(self.account)
-        self.report.run()
+        self.report = pnlCalculator(self.account).run()
 
         # update interface finished
         self.mainWindow.pageTechAnLaunchFinish()

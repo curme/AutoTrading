@@ -92,3 +92,4 @@ class pnlCalculator:
                                        "Sharpe Ratio", "MDD"])
         print "Report " + "/" * 100
         print report
+        return report
