@@ -149,7 +149,7 @@ class pairstrading(Strategy):
         # plot2.xaxis.set_ticklabels([])
 
 
-        plt.savefig("strategies/image/pairtrading.png", facecolor='#17202A', edgecolor=None)
+        plt.savefig("strategies/image/pairstrading.png", facecolor='#17202A', edgecolor=None)
         plt.close()
 
 

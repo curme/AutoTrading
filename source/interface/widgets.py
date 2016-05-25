@@ -571,11 +571,10 @@ class MainWindow(QMainWindow):
                 scrollContentVBox.setAlignment(Qt.AlignTop)
                 scrollContentVBox.setContentsMargins(0, 0, 0, 0)
 
-                if not "pairstrading" in self.ATM.strategies.strategiesPool.keys():
-                    self.pageAtoTrdSignalPlotLabel = QLabel("Signals Plots", page)
-                    self.pageAtoTrdSignalPlotLabel.setFixedSize(860, 25)
-                    self.pageAtoTrdSignalPlotLabel.setStyleSheet(self.pageSubTitleQSS)
-                    scrollContentVBox.addWidget(self.pageAtoTrdSignalPlotLabel)
+                self.pageAtoTrdSignalPlotLabel = QLabel("Signals Plots", page)
+                self.pageAtoTrdSignalPlotLabel.setFixedSize(860, 25)
+                self.pageAtoTrdSignalPlotLabel.setStyleSheet(self.pageSubTitleQSS)
+                scrollContentVBox.addWidget(self.pageAtoTrdSignalPlotLabel)
 
                 path = "./strategies/image/"
                 for file in os.listdir(path):
