@@ -88,13 +88,14 @@ class OrderManager:
     def generateOrders(self, signal):
         if self.orderGenerateType == "VWAP"   : return self.orderVWAP(signal)
         if self.orderGenerateType == "TWAP"   : return self.orderTWAP(signal)
-        if self.orderGenerateType == "POV"    : return self.orderPOV(signal)
-        if self.orderGenerateType == "Simple" : return self.orderSimple(signal)
+        # if self.orderGenerateType == "POV"    : return self.orderPOV(signal)
+        # if self.orderGenerateType == "Simple" : return self.orderTWAP(signal)
         if self.orderGenerateType == "Default": return self.orderDefault(signal)
 
         return []
 
     # generate orders in VWAP type
+    """
     def orderVWAP(self, signal):
         # Take the last 7 days transaction data for historical data analysis
         historyDays = 7
@@ -195,8 +196,10 @@ class OrderManager:
         print "orderList", "*" * 100
         print orderList
         return orderList
+    """
 
     # generate orders in TWAP type
+    """
     def orderTWAP(self, signal):
 
         # Take the last 7 days transaction data for historical data analysis
@@ -233,7 +236,7 @@ class OrderManager:
             else:
                 timeslotPrice[tempTimeslot] += tempPrice
                 timeslotCounts[tempTimeslot] += 1
-		
+
 		# find out the average past 7 day trading price for each time interval
         totalTimeslotAvgPrice = 0
         for timeslot in timeslotPrice:
@@ -244,7 +247,7 @@ class OrderManager:
         print timeslotCounts
         order_size = totalTradeSize / timeslotCounts
         order=[]
-		
+
         while totalTradeSize > 0:
         	if totalTradeSize>=order_size:
 				order.append([code, sDate, action, order_size, QntPer, totalTimeslotAvgPrice, Equity, type])
@@ -253,6 +256,7 @@ class OrderManager:
 				order.append([code, sDate, action, totalTradeSize, QntPer, totalTimeslotAvgPrice, Equity, type])
 				totalTradeSize=0
         return order
+    """
 
     # generate orders in POV type
     def orderPOV(self, signal):
@@ -325,7 +329,7 @@ class OrderManager:
         #return []
 
     # generate orders in POV type
-    def orderSimple(self, signal):
+    def orderTWAP(self, signal):
         """
            Code                Time       Action  Qnt    QntPer  Price   Equity        Strategy
         0   HSI 2016-01-06 14:15:00        Short    0  0.000000  20983  25000000    ACOscillator

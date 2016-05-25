@@ -248,17 +248,16 @@ class MainWindow(QMainWindow):
             self.pageTechAnTradeStrateWidget.setFixedSize(700, 40)
             tradeStratGrid = QGridLayout()
             tradeStratGrid.setContentsMargins(30, 5, 0, 5)
-            self.pageTechAnTStrRadioButtonSimple=QRadioButton("  Simple")
-            self.pageTechAnTStrRadioButtonSimple.setChecked(True)
             self.pageTechAnTStrRadioButtonVWAP = QRadioButton("  VWAP")
+            self.pageTechAnTStrRadioButtonVWAP.setCheckable(False)
             self.pageTechAnTStrRadioButtonTWAP = QRadioButton("  TWAP")
-            self.pageTechAnTStrRadioButtonPOV  = QRadioButton("  POV")
+            self.pageTechAnTStrRadioButtonTWAP.setChecked(True)
             self.pageTechAnTStrRadioButtonNONE = QRadioButton("  NONE")
             tradeStratGrid.addWidget(self.pageTechAnTStrRadioButtonVWAP, *(1, 1))
             tradeStratGrid.addWidget(self.pageTechAnTStrRadioButtonTWAP, *(1, 2))
-            tradeStratGrid.addWidget(self.pageTechAnTStrRadioButtonPOV,*(1, 3))
-            tradeStratGrid.addWidget(self.pageTechAnTStrRadioButtonSimple, *(1, 4))
-            tradeStratGrid.addWidget(self.pageTechAnTStrRadioButtonNONE, *(1,5))
+            tradeStratGrid.addWidget(self.pageTechAnTStrRadioButtonNONE, *(1, 3))
+            tradeStratGrid.addWidget(QLabel(), *(1, 4))
+            tradeStratGrid.addWidget(QLabel(), *(1, 5))
             self.pageTechAnTradeStrateWidget.setLayout(tradeStratGrid)
             pageMainVerticalBox.addWidget(self.pageTechAnTradeStrateWidget)
 
@@ -318,8 +317,8 @@ class MainWindow(QMainWindow):
         tradeStrategy = None
         if self.pageTechAnTStrRadioButtonVWAP.isChecked()   : tradeStrategy = "VWAP"
         if self.pageTechAnTStrRadioButtonTWAP.isChecked()   : tradeStrategy = "TWAP"
-        if self.pageTechAnTStrRadioButtonPOV.isChecked()    : tradeStrategy = "POV"
-        if self.pageTechAnTStrRadioButtonSimple.isChecked() : tradeStrategy = "Simple"
+        # if self.pageTechAnTStrRadioButtonPOV.isChecked()    : tradeStrategy = "POV"
+        # if self.pageTechAnTStrRadioButtonSimple.isChecked() : tradeStrategy = "Simple"
         if self.pageTechAnTStrRadioButtonNONE.isChecked()   : tradeStrategy = "Default"
 
         positionManagement = None
@@ -455,15 +454,16 @@ class MainWindow(QMainWindow):
             tradeStratGrid.setContentsMargins(30, 5, 0, 5)
             self.pagePairTrTStrRadioButtonSimple = QRadioButton("  Simple")
             self.pagePairTrTStrRadioButtonSimple.setChecked(True)
-            self.pagePairTrTStrRadioButtonVWAP = QRadioButton("  VWAP")
-            self.pagePairTrTStrRadioButtonTWAP = QRadioButton("  TWAP")
-            self.pagePairTrTStrRadioButtonPOV = QRadioButton("  POV")
-            self.pagePairTrTStrRadioButtonNONE = QRadioButton("  NONE")
-            tradeStratGrid.addWidget(self.pagePairTrTStrRadioButtonVWAP, *(1, 1))
-            tradeStratGrid.addWidget(self.pagePairTrTStrRadioButtonTWAP, *(1, 2))
-            tradeStratGrid.addWidget(self.pagePairTrTStrRadioButtonPOV, *(1, 3))
-            tradeStratGrid.addWidget(self.pagePairTrTStrRadioButtonSimple, *(1, 4))
-            tradeStratGrid.addWidget(self.pagePairTrTStrRadioButtonNONE, *(1, 5))
+            self.pageTechAnTStrRadioButtonVWAP = QRadioButton("  VWAP")
+            self.pageTechAnTStrRadioButtonVWAP.setCheckable(False)
+            self.pageTechAnTStrRadioButtonTWAP = QRadioButton("  TWAP")
+            self.pageTechAnTStrRadioButtonTWAP.setChecked(True)
+            self.pageTechAnTStrRadioButtonNONE = QRadioButton("  NONE")
+            tradeStratGrid.addWidget(self.pageTechAnTStrRadioButtonVWAP, *(1, 1))
+            tradeStratGrid.addWidget(self.pageTechAnTStrRadioButtonTWAP, *(1, 2))
+            tradeStratGrid.addWidget(self.pageTechAnTStrRadioButtonNONE, *(1, 3))
+            tradeStratGrid.addWidget(QLabel(), *(1, 4))
+            tradeStratGrid.addWidget(QLabel(), *(1, 5))
             self.pagePairTrTradeStrateWidget.setLayout(tradeStratGrid)
             pageMainVerticalBox.addWidget(self.pagePairTrTradeStrateWidget)
 
