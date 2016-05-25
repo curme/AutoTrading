@@ -137,7 +137,7 @@ class DM_RSI_ADX(Strategy):
         plot1.spines['top'].set_linewidth(2)
         plot1.spines['right'].set_linewidth(2)
 
-        plt.savefig("strategies/image/DM_RSI_ADX.png", facecolor=None, edgecolor=None)
+        plt.savefig("strategies/image/DM_RSI_ADX.png", facecolor='#17202A', edgecolor=None)
         plt.close()
         return sig
 
