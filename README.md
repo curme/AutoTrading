@@ -14,7 +14,7 @@ Project report: [[Auto Trading System 6.83MB]](https://github.com/curme/AutoTrad
 >&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;...  
 >&#160;&#160;&#160;&#160;...   
 
-2.Download the exetable file
+2.Download the executable file
 > Google Drive: [[main.zip]](https://drive.google.com/file/d/0ByCeEOXBRcj5MHZFR3lvQjNSVjg/view?usp=sharing)  
 > Baidu Yun: [[main.zip]](https://pan.baidu.com/s/1o7YPSvw)
 
